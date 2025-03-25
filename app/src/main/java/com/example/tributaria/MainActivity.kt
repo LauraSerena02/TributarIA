@@ -12,6 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tributaria.screens.LoginScreen
 import com.example.tributaria.screens.SuccessScreen
 import com.example.tributaria.screens.FailureScreen
+import com.example.tributaria.screens.CreateScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -35,5 +36,6 @@ fun AppNavigator() {
         composable("login") { LoginScreen(navController) }
         composable("success") { SuccessScreen(navController) }
         composable("failure") { FailureScreen(navController) }
+        composable("create") { CreateScreen(navController) }
     }
 }

@@ -103,7 +103,7 @@ fun LoginScreen(navController: NavHostController) {
                 .padding(bottom = 6.dp),
             isError = usernameError,
             supportingText = {
-                if (usernameError) Text("Required field", color = Color.Red)
+                if (usernameError) Text("Campo obligatorio", color = Color.Red)
             }
         )
 
@@ -114,7 +114,7 @@ fun LoginScreen(navController: NavHostController) {
                 password = it
                 if (it.isNotBlank()) passwordError = false
             },
-            label = { Text("Password") },
+            label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password Icon") },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -129,7 +129,7 @@ fun LoginScreen(navController: NavHostController) {
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             isError = passwordError,
             supportingText = {
-                if (passwordError) Text("Required field", color = Color.Red)
+                if (passwordError) Text("Campo obligatorio", color = Color.Red)
             }
         )
 
@@ -160,25 +160,27 @@ fun LoginScreen(navController: NavHostController) {
                 .padding(top = 16.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
         ) {
-            Text("Login", color = Color.White)
+            Text("Iniciar sesión", color = Color.White)
         }
 
         // Button to create a new account (action not implemented)
         Button(
             onClick = {
-                // Action for creating a new account (to be implemented)
+                navController.navigate("create") {
+                    launchSingleTop = true
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 4.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
         ) {
-            Text("Create Account", color = Color.White)
+            Text("Crear cuenta", color = Color.White)
         }
 
         // "Forgot Password" text with click action
         Text(
-            text = "Forgot your password?",
+            text = "¿Olvidaste la contraseña?",
             color = Color.DarkGray,
             style = TextStyle(textDecoration = TextDecoration.Underline),
             modifier = Modifier
@@ -189,9 +191,9 @@ fun LoginScreen(navController: NavHostController) {
         // Important legal disclaimer
         Spacer(modifier = Modifier.height(5.dp))
         Text(
-            text = "**Important Notice**: TributarIA is an independent application and " +
-                    "is not affiliated with or representing any government entity. The information " +
-                    "provided is based on official public sources.",
+            text = "**Aviso importante**: TributarIA es una aplicacion independiente y " +
+                    "no esta afiliada ni representa a ninguna entidad gubernamental. La información " +
+                    "proporcionada se basa en fuentes públicas oficiales.",
             fontSize = 10.sp,  // Small text size
             textAlign = TextAlign.Center,
             modifier = Modifier
