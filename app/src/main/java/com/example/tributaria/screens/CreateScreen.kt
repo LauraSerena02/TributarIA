@@ -153,27 +153,29 @@ fun CreateScreen(navController: NavHostController) {
                     )
                 },
                 text = {
-                    Column(modifier = Modifier.padding(8.dp)) {
+                    Column(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
                         Text(
-                            text = "TributarIA, en cumplimiento de la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013, implementa sus Políticas para el Tratamiento y Protección de Datos Personales.",
+                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013, implementa sus Políticas para el Tratamiento y Protección de Datos Personales.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "TributarIA implementará acciones necesarias para garantizar la protección de los datos personales.",
+                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales de los que sea responsable.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Se protegerán los derechos a la privacidad, intimidad y buen nombre.",
+                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre, así como los derechos a conocer, actualizar y rectificar los datos de los titulares recogidos en las bases de datos propias.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Estas políticas aplican tanto a datos personales como transaccionales.",
+                            text = "Estas políticas aplican tanto para la protección de los datos personales como de la información transaccional tratada actualmente y en el futuro.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
