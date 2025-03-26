@@ -13,6 +13,7 @@ import com.example.tributaria.screens.LoginScreen
 import com.example.tributaria.screens.SuccessScreen
 import com.example.tributaria.screens.FailureScreen
 import com.example.tributaria.screens.CreateScreen
+import com.example.tributaria.screens.RecoverScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,5 +38,6 @@ fun AppNavigator() {
         composable("success") { SuccessScreen(navController) }
         composable("failure") { FailureScreen(navController) }
         composable("create") { CreateScreen(navController) }
+        composable("recover") { RecoverScreen(navController) }
     }
 }

@@ -185,7 +185,9 @@ fun LoginScreen(navController: NavHostController) {
             style = TextStyle(textDecoration = TextDecoration.Underline),
             modifier = Modifier
                 .padding(vertical = 8.dp)
-                .clickable { /* Action for forgot password */ }
+                .clickable { navController.navigate("recover") {
+                    launchSingleTop = true
+                } }
         )
 
         // Important legal disclaimer

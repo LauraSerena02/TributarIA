@@ -17,18 +17,20 @@ import androidx.compose.ui.unit.sp
 
 
 
-@Composable
-fun CreateScreen(navController: NavHostController){
+import android.util.Patterns
 
-// State variables to store user input and UI states
+@Composable
+fun CreateScreen(navController: NavHostController) {
+
+    // State variables
     var username by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var termsAccepted by remember { mutableStateOf(false) }
     var passwordMismatch by remember { mutableStateOf(false) }
+    var isEmailValid by remember { mutableStateOf(true) }
 
-// Main column for layout
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,7 +39,6 @@ fun CreateScreen(navController: NavHostController){
     ) {
         Spacer(modifier = Modifier.height(60.dp))
 
-        // Title text
         Text(
             text = "Crear cuenta",
             fontSize = 26.sp,
@@ -47,7 +48,6 @@ fun CreateScreen(navController: NavHostController){
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Description text
         Text(
             text = "Organiza tus impuestos y toma el control de tus finanzas. ¡Regístrate ahora!",
             fontSize = 14.sp,
@@ -58,7 +58,6 @@ fun CreateScreen(navController: NavHostController){
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Input fields
         OutlinedTextField(
             value = username,
             onValueChange = { username = it },
@@ -68,10 +67,22 @@ fun CreateScreen(navController: NavHostController){
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = {
+                email = it
+                isEmailValid = Patterns.EMAIL_ADDRESS.matcher(it).matches()
+            },
             label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            isError = !isEmailValid
         )
+        if (!isEmailValid) {
+            Text(
+                text = "Por favor ingresa un correo válido",
+                color = Color.Red,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(top = 4.dp)
+            )
+        }
 
         OutlinedTextField(
             value = password,
@@ -89,7 +100,6 @@ fun CreateScreen(navController: NavHostController){
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Password mismatch warning
         if (passwordMismatch) {
             Text(
                 text = "Las contraseñas no coinciden",
@@ -101,10 +111,8 @@ fun CreateScreen(navController: NavHostController){
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Privacy terms dialog state
         var showTermsDialog by remember { mutableStateOf(false) }
 
-        // Switch for accepting privacy terms
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
@@ -134,7 +142,6 @@ fun CreateScreen(navController: NavHostController){
             )
         }
 
-        // Privacy terms dialog
         if (showTermsDialog) {
             AlertDialog(
                 onDismissRequest = { showTermsDialog = false },
@@ -146,29 +153,27 @@ fun CreateScreen(navController: NavHostController){
                     )
                 },
                 text = {
-                    Column(
-                        modifier = Modifier.padding(8.dp)
-                    ) {
+                    Column(modifier = Modifier.padding(8.dp)) {
                         Text(
-                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013, implementa sus Políticas para el Tratamiento y Protección de Datos Personales.",
+                            text = "TributarIA, en cumplimiento de la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013, implementa sus Políticas para el Tratamiento y Protección de Datos Personales.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales de los que sea responsable.",
+                            text = "TributarIA implementará acciones necesarias para garantizar la protección de los datos personales.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre, así como los derechos a conocer, actualizar y rectificar los datos de los titulares recogidos en las bases de datos propias.",
+                            text = "Se protegerán los derechos a la privacidad, intimidad y buen nombre.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Estas políticas aplican tanto para la protección de los datos personales como de la información transaccional tratada actualmente y en el futuro.",
+                            text = "Estas políticas aplican tanto a datos personales como transaccionales.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
@@ -184,14 +189,15 @@ fun CreateScreen(navController: NavHostController){
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Register button with validation
         Button(
             onClick = {
                 passwordMismatch = password != confirmPassword
-                if (!passwordMismatch) {
+                isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
+
+                if (!passwordMismatch && isEmailValid) {
                     navController.navigate("login") {
                         popUpTo("create") { inclusive = true }
-                        launchSingleTop = true //Database logic to be implemented
+                        launchSingleTop = true //Add logic to add to database
                     }
                 }
             },
@@ -208,7 +214,6 @@ fun CreateScreen(navController: NavHostController){
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // Back button
         OutlinedButton(
             onClick = {
                 navController.navigate("login") {
@@ -223,5 +228,4 @@ fun CreateScreen(navController: NavHostController){
             Text("Volver", color = Color.Black, fontWeight = FontWeight.Bold)
         }
     }
-
 }
