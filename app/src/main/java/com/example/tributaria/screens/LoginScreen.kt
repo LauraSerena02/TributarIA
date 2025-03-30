@@ -92,8 +92,8 @@ fun LoginScreen(navController: NavHostController) {
         OutlinedTextField(
             value = username,
             onValueChange = {
-                username = it
-                if (it.isNotBlank()) usernameError = false
+                username = it.trim()
+                if (username.isNotBlank()) usernameError = false
             },
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "User Icon") },
@@ -111,8 +111,8 @@ fun LoginScreen(navController: NavHostController) {
         OutlinedTextField(
             value = password,
             onValueChange = {
-                password = it
-                if (it.isNotBlank()) passwordError = false
+                password = it.trim() // Elimina espacios al inicio y al final
+                if (password.isNotBlank()) passwordError = false
             },
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password Icon") },
@@ -132,7 +132,6 @@ fun LoginScreen(navController: NavHostController) {
                 if (passwordError) Text("Campo obligatorio", color = Color.Red)
             }
         )
-
         // Login button with validation and navigation logic
         Button(
             onClick = {
