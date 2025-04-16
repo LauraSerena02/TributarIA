@@ -1,5 +1,4 @@
 package com.example.tributaria
-
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,12 +8,11 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.tributaria.screens.LoginScreen
-import com.example.tributaria.screens.SuccessScreen
-import com.example.tributaria.screens.FailureScreen
-import com.example.tributaria.screens.CreateScreen
-import com.example.tributaria.screens.NewsScreen
-import com.example.tributaria.screens.RecoverScreen
+import com.example.tributaria.features.login.presentation.LoginScreen
+import com.example.tributaria.features.register.presentation.CreateScreen
+import com.example.tributaria.features.homepage.SuccessScreen
+import com.example.tributaria.features.news.NewsScreen
+import com.example.tributaria.features.recoveraccount.RecoverScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,9 +35,9 @@ fun AppNavigator() {
     ) {
         composable("login") { LoginScreen(navController) }
         composable("success") { SuccessScreen(navController) }
-        composable("failure") { FailureScreen(navController) }
-        composable("create") { CreateScreen(navController) }
+        composable("register") { CreateScreen(navController) }
         composable("recover") { RecoverScreen(navController) }
         composable("news") { NewsScreen(navController) }
     }
 }
+

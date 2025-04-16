@@ -1,5 +1,5 @@
-// Import required libraries for UI elements, state management, navigation, and resources
-package com.example.tributaria.screens
+// Importa las librerías necesarias para Composables, UI y la interacción con el ViewModel
+package com.example.tributaria.features.login.presentation
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -20,39 +20,45 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.R
-import androidx.compose.ui.text.style.TextDecoration
+import com.example.tributaria.features.login.viewmodel.LoginState
+import com.example.tributaria.features.login.viewmodel.LoginViewModel
 
-// User data model containing username and password
-data class User(val username: String, val password: String)
 
+// Define la pantalla de inicio de sesión. Recibe el navController para la navegación y el LoginViewModel.
 @Composable
-fun LoginScreen(navController: NavHostController) {
-    // Hardcoded user list for login validation
-    val users = listOf(
-        User("admin", "1234"),
-        User("user1", "password"),
-        User("guest", "guest123")
-    )
-
-    // State variables for input fields and password visibility
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun LoginScreen(
+    navController: NavHostController,
+    viewModel: LoginViewModel = viewModel()
+) {
+    val loginState by viewModel.loginState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
+    var showError by remember { mutableStateOf(false) }
 
-    // State variables to manage input validation errors
-    var usernameError by remember { mutableStateOf(false) }
-    var passwordError by remember { mutableStateOf(false) }
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is LoginState.Success -> {
+                navController.navigate("success") {
+                    popUpTo("login") { inclusive = true }
+                }
+            }
+            is LoginState.InvalidCredentials -> {
+                // Aquí puedes manejar un mensaje de error
+            }
+            else -> Unit
+        }
+    }
 
-    // Main vertical layout with gradient background
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -67,9 +73,9 @@ fun LoginScreen(navController: NavHostController) {
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(50.dp)) // Top spacing
+        Spacer(modifier = Modifier.height(50.dp))
 
-        // App logo image
+        // Logo
         Image(
             painter = painterResource(id = R.drawable.logotria),
             contentDescription = "Login Image",
@@ -79,7 +85,7 @@ fun LoginScreen(navController: NavHostController) {
             contentScale = ContentScale.Fit
         )
 
-        // Title text
+        // Título
         Text(
             text = "Iniciar sesión",
             fontSize = 24.sp,
@@ -88,32 +94,48 @@ fun LoginScreen(navController: NavHostController) {
             color = Color.Black
         )
 
-        // Username input field with validation
+        when (loginState) {
+            is LoginState.InvalidCredentials -> {
+                Text(
+                    text = "Email o contraseña incorrectos.",
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            is LoginState.Error -> {
+                Text(
+                    text = (loginState as LoginState.Error).errorMessage,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
+            else -> Unit
+        }
+
+        // Campo Email
         OutlinedTextField(
-            value = username,
-            onValueChange = {
-                username = it.trim()
-                if (username.isNotBlank()) usernameError = false
-            },
+            value = viewModel.username,
+            onValueChange = viewModel::updateUsername,
             label = { Text("Email") },
             leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "User Icon") },
             placeholder = { Text("nombre@dominio.com") },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 6.dp),
-            isError = usernameError,
+            isError = (loginState is LoginState.EmptyFields || showError) && viewModel.username.isBlank(),
             supportingText = {
-                if (usernameError) Text("Campo obligatorio", color = Color.Red)
+                if ((loginState is LoginState.EmptyFields || showError) && viewModel.username.isBlank()) {
+                    Text("Campo obligatorio", color = Color.Red)
+                }
             }
         )
 
-        // Password input field with visibility toggle and validation
+        // Campo Contraseña
         OutlinedTextField(
-            value = password,
-            onValueChange = {
-                password = it.trim() // Elimina espacios al inicio y al final
-                if (password.isNotBlank()) passwordError = false
-            },
+            value = viewModel.password,
+            onValueChange = viewModel::updatePassword,
             label = { Text("Contraseña") },
             leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password Icon") },
             trailingIcon = {
@@ -127,66 +149,62 @@ fun LoginScreen(navController: NavHostController) {
             visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-            isError = passwordError,
+            isError = (loginState is LoginState.EmptyFields || showError) && viewModel.password.isBlank(),
             supportingText = {
-                if (passwordError) Text("Campo obligatorio", color = Color.Red)
+                if ((loginState is LoginState.EmptyFields || showError) && viewModel.password.isBlank()) {
+                    Text("Campo obligatorio", color = Color.Red)
+                }
             }
         )
-        // Login button with validation and navigation logic
+
+        // Botón Login
         Button(
             onClick = {
-                // Validate empty fields
-                usernameError = username.isBlank()
-                passwordError = password.isBlank()
-
-                // If both fields are valid, check credentials
-                if (!usernameError && !passwordError) {
-                    if (users.any { it.username == username && it.password == password }) {
-                        // Navigate to Success screen without stacking duplicates
-                        navController.navigate("success") {
-                            launchSingleTop = true
-                        }
-                    } else {
-                        // Navigate to Failure screen
-                        navController.navigate("failure") {
-                            launchSingleTop = true
-                        }
-                    }
+                if (viewModel.username.isBlank() || viewModel.password.isBlank()) {
+                    showError = true
+                } else {
+                    viewModel.login()
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 16.dp),
+            enabled = loginState != LoginState.Loading,
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
         ) {
-            Text("Iniciar sesión", color = Color.White)
+            if (loginState == LoginState.Loading) {
+                CircularProgressIndicator(
+                    color = Color.White,
+                    modifier = Modifier.size(20.dp)
+                )
+            } else {
+                Text("Iniciar sesión", color = Color.White)
+            }
         }
 
-        // Button to create a new account (action not implemented)
+        // Botón Crear Cuenta
         Button(
-            onClick = {
-                navController.navigate("create") {
-                    launchSingleTop = true
-                }
-            },
+            onClick = { navController.navigate("register") },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 4.dp),
+                .padding(top = 8.dp),
             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
         ) {
             Text("Crear cuenta", color = Color.White)
         }
 
-        // "Forgot Password" text with click action
+        // Enlace Olvidaste la Contraseña
         Text(
             text = "¿Olvidaste la contraseña?",
             color = Color.DarkGray,
             style = TextStyle(textDecoration = TextDecoration.Underline),
             modifier = Modifier
                 .padding(vertical = 8.dp)
-                .clickable { navController.navigate("recover") {
-                    launchSingleTop = true
-                } }
+                .clickable {
+                    navController.navigate("recover") {
+                        launchSingleTop = true
+                    }
+                }
         )
 
         // Important legal disclaimer

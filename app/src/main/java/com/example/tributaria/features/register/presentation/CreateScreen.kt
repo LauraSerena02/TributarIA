@@ -1,44 +1,51 @@
-package com.example.tributaria.screens
+package com.example.tributaria.features.register.presentation
 
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavHostController
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+
 import androidx.compose.runtime.*
+import androidx.compose.material3.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.navigation.NavHostController
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tributaria.features.register.viewmodel.CreateAccountViewModel
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.text.style.TextAlign
 
-
-
-import android.util.Patterns
-
+// Función composable principal que representa la pantalla de creación de cuenta
 @Composable
-fun CreateScreen(navController: NavHostController) {
+fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewModel = viewModel()) {
+    // Se suscribe al estado del ViewModel usando StateFlow
+    val state by viewModel.state.collectAsState()
+    // Controla la visibilidad del diálogo de términos
+    var showTermsDialog by remember { mutableStateOf(false) }
 
-    // State variables
-    var username by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var termsAccepted by remember { mutableStateOf(false) }
-    var passwordMismatch by remember { mutableStateOf(false) }
-    var isEmailValid by remember { mutableStateOf(true) }
+    // Navegación automática al login si el registro fue exitoso
+    if (state.success) {
+        LaunchedEffect(Unit) {
+            navController.navigate("login") {
+                popUpTo("create") { inclusive = true } // Elimina la pantalla del backstack
+            }
+            viewModel.resetSuccess() // Reinicia la bandera de éxito
+        }
+    }
 
+    // Contenedor principal de la pantalla
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        // Espacio superior inicial
         Spacer(modifier = Modifier.height(60.dp))
 
+        // Título
         Text(
             text = "Crear cuenta",
             fontSize = 26.sp,
@@ -48,6 +55,7 @@ fun CreateScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Subtítulo
         Text(
             text = "Organiza tus impuestos y toma el control de tus finanzas. ¡Regístrate ahora!",
             fontSize = 14.sp,
@@ -58,69 +66,60 @@ fun CreateScreen(navController: NavHostController) {
 
         Spacer(modifier = Modifier.height(20.dp))
 
+        // Campo de nombre de usuario
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = state.username,
+            onValueChange = viewModel::onUsernameChange,
             label = { Text("Nombre de usuario") },
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Campo de correo electrónico con validación
         OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it
-                isEmailValid = Patterns.EMAIL_ADDRESS.matcher(it).matches()
-            },
+            value = state.email,
+            onValueChange = viewModel::onEmailChange,
             label = { Text("Correo electrónico") },
-            modifier = Modifier.fillMaxWidth(),
-            isError = !isEmailValid
+            isError = !state.isEmailValid,
+            modifier = Modifier.fillMaxWidth()
         )
-        if (!isEmailValid) {
-            Text(
-                text = "Por favor ingresa un correo válido",
-                color = Color.Red,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+        if (!state.isEmailValid) {
+            Text("Correo no válido", color = Color.Red)
         }
 
+        // Campo de contraseña
         OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = state.password,
+            onValueChange = viewModel::onPasswordChange,
             label = { Text("Contraseña") },
-            visualTransformation = PasswordVisualTransformation(),
+            visualTransformation = PasswordVisualTransformation(), // Oculta el texto
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Confirmar contraseña
         OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
+            value = state.confirmPassword,
+            onValueChange = viewModel::onConfirmPasswordChange,
             label = { Text("Confirmar contraseña") },
             visualTransformation = PasswordVisualTransformation(),
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (passwordMismatch) {
-            Text(
-                text = "Las contraseñas no coinciden",
-                color = Color.Red,
-                fontSize = 12.sp,
-                modifier = Modifier.padding(top = 4.dp)
-            )
+        // Mensaje de error si las contraseñas no coinciden
+        if (state.passwordMismatch) {
+            Text("Las contraseñas no coinciden", color = Color.Red)
         }
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        var showTermsDialog by remember { mutableStateOf(false) }
-
+        // Switch y texto para aceptar términos y condiciones
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Switch(
-                checked = termsAccepted,
-                onCheckedChange = { termsAccepted = it },
+                checked = state.termsAccepted,
+                onCheckedChange = viewModel::onTermsAcceptedChange,
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Color(0xFF2271B3),
                     checkedTrackColor = Color(0xFFB0C5F0),
@@ -128,7 +127,6 @@ fun CreateScreen(navController: NavHostController) {
                     uncheckedTrackColor = Color.LightGray
                 )
             )
-
             Text(
                 text = "Acepto los ",
                 color = Color.Black,
@@ -142,6 +140,7 @@ fun CreateScreen(navController: NavHostController) {
             )
         }
 
+        // Diálogo con los términos y condiciones
         if (showTermsDialog) {
             AlertDialog(
                 onDismissRequest = { showTermsDialog = false },
@@ -157,19 +156,19 @@ fun CreateScreen(navController: NavHostController) {
                         modifier = Modifier.padding(8.dp)
                     ) {
                         Text(
-                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013, implementa sus Políticas para el Tratamiento y Protección de Datos Personales.",
+                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013...",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales de los que sea responsable.",
+                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales...",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre, así como los derechos a conocer, actualizar y rectificar los datos de los titulares recogidos en las bases de datos propias.",
+                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre...",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
@@ -185,44 +184,39 @@ fun CreateScreen(navController: NavHostController) {
                     TextButton(onClick = { showTermsDialog = false }) {
                         Text("Aceptar", color = Color(0xFF2271B3))
                     }
-                }
+                },
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
+        // Botón para enviar el formulario de registro
         Button(
-            onClick = {
-                passwordMismatch = password != confirmPassword
-                isEmailValid = Patterns.EMAIL_ADDRESS.matcher(email).matches()
-
-                if (!passwordMismatch && isEmailValid) {
-                    navController.navigate("login") {
-                        popUpTo("create") { inclusive = true }
-                        launchSingleTop = true //Add logic to add to database
-                    }
-                }
-            },
-            enabled = termsAccepted && username.isNotBlank() && email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank(),
+            onClick = viewModel::register,
+            enabled = state.termsAccepted && !state.isLoading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (termsAccepted) Color(0xFF2271B3) else Color.Gray
+                containerColor = if (state.termsAccepted) Color(0xFF2271B3) else Color.Gray
             ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)
         ) {
-            Text("Registrarme", color = Color.White)
+            if (state.isLoading)
+                CircularProgressIndicator(modifier = Modifier.size(24.dp))
+            else
+                Text("Registrarme", color = Color.White)
+        }
+
+        // Mensaje de error en caso de fallo
+        state.error?.let {
+            Text(it, color = Color.Red)
         }
 
         Spacer(modifier = Modifier.height(10.dp))
 
+        // Botón para volver a la pantalla de login
         OutlinedButton(
-            onClick = {
-                navController.navigate("login") {
-                    popUpTo("create") { inclusive = true }
-                    launchSingleTop = true
-                }
-            },
+            onClick = { navController.navigate("login") },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp)

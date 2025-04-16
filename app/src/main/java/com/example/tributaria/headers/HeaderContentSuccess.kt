@@ -22,8 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.tributaria.R
 
-
-
 @Composable
 fun HeaderContentSuccess(onMenuClick: () -> Unit) {
     Box(

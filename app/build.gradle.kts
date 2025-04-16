@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // Add the Google services Gradle plugin
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -27,6 +29,10 @@ android {
             )
         }
     }
+
+    buildFeatures{
+        viewBinding = true
+    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -51,6 +57,31 @@ dependencies {
 
     implementation ("androidx.compose.foundation:foundation:1.4.0")
     implementation ("androidx.compose.foundation:foundation-layout:1.4.0")
+
+
+    //viewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    //LiveData
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation ("androidx.compose.runtime:runtime-livedata:1.4.0")
+    implementation ("androidx.compose.material3:material3:1.1.1")
+    //Fragment
+    implementation("androidx.fragment:fragment-ktx:1.6.1")
+    //Activity
+    implementation("androidx.activity:activity-compose:1.7.2")
+
+    // Import the Firebase BoM
+    implementation(platform("com.google.firebase:firebase-bom:33.12.0"))
+
+
+// TODO: Add the dependencies for Firebase products you want to use
+    // When using the BoM, don't specify versions in Firebase dependencies
+    // Add the dependencies for any other desired Firebase products
+    implementation("com.google.firebase:firebase-firestore-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx")
+
+
+
 
 
 

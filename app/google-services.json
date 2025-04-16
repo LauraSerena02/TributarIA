@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "213402890734",
+    "project_id": "tributaria-28e0c",
+    "storage_bucket": "tributaria-28e0c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213402890734:android:fdbde66c8a4b549b6f5eff",
+        "android_client_info": {
+          "package_name": "com.example.tributaria"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBQD71kAT58gjlq4F8kyZgJVqTdXMxV46M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

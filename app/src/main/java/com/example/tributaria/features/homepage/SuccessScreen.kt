@@ -1,4 +1,4 @@
-package com.example.tributaria.screens
+package com.example.tributaria.features.homepage
 
 // Required imports for layout, components, and navigation
 

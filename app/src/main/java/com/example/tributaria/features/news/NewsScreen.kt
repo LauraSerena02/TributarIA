@@ -1,4 +1,4 @@
-package com.example.tributaria.screens
+package com.example.tributaria.features.news
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
