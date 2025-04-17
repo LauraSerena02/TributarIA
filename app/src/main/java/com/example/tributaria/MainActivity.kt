@@ -12,7 +12,7 @@ import com.example.tributaria.features.login.presentation.LoginScreen
 import com.example.tributaria.features.register.presentation.CreateScreen
 import com.example.tributaria.features.homepage.SuccessScreen
 import com.example.tributaria.features.news.NewsScreen
-import com.example.tributaria.features.recoveraccount.RecoverScreen
+import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

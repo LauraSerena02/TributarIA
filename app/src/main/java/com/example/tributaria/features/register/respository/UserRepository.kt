@@ -1,5 +1,6 @@
-package com.example.tributaria.features.register.model
+package com.example.tributaria.features.register.respository
 
+import com.example.tributaria.features.register.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await

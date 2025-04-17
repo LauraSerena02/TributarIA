@@ -10,7 +10,7 @@ import android.util.Patterns
 // Importación del estado de la pantalla de registro
 
 // Importación del repositorio que maneja la lógica de registro con Firebase
-import com.example.tributaria.features.register.model.UserRepository
+import com.example.tributaria.features.register.respository.UserRepository
 
 // ViewModel responsable de manejar el estado y la lógica de la pantalla de creación de cuenta
 class CreateAccountViewModel : ViewModel() {

@@ -13,7 +13,7 @@ sealed class LoginState {
     object Success : LoginState()
 
     // Estado que indica que las credenciales ingresadas son incorrectas.
-    object InvalidCredentials : LoginState()
+    data class InvalidCredentials(val errorMessage: String) : LoginState()
 
     // Estado que indica que hay campos vacíos en el formulario de login.
     object EmptyFields : LoginState()

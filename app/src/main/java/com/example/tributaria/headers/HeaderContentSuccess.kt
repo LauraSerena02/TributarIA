@@ -67,4 +67,3 @@ fun HeaderContentSuccess(onMenuClick: () -> Unit) {
         }
     }
 }
-

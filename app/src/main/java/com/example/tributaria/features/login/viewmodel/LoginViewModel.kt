@@ -5,7 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.tributaria.features.login.model.AuthRepository
+import com.example.tributaria.features.login.repository.AuthRepository
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -16,8 +18,10 @@ class LoginViewModel(
 ) : ViewModel() {
 
     // Estado mutable para gestionar el estado de la pantalla de inicio de sesión
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)  // Inicializa el estado como Idle
-    val loginState: StateFlow<LoginState> = _loginState  // Exposición del estado para que la vista lo observe
+    private val _loginState =
+        MutableStateFlow<LoginState>(LoginState.Idle)  // Inicializa el estado como Idle
+    val loginState: StateFlow<LoginState> =
+        _loginState  // Exposición del estado para que la vista lo observe
 
     // Variables para almacenar el nombre de usuario (email) y la contraseña
     var username by mutableStateOf("") // El valor de 'username' se actualiza cuando cambia el campo en la UI
@@ -25,12 +29,18 @@ class LoginViewModel(
 
     // Función para actualizar el nombre de usuario
     fun updateUsername(value: String) {
-        username = value  // Asigna el nuevo valor al 'username'
+        username = value
+        if (_loginState.value is LoginState.EmptyFields || _loginState.value is LoginState.InvalidCredentials) {
+            _loginState.value = LoginState.Idle
+        }
     }
 
     // Función para actualizar la contraseña
     fun updatePassword(value: String) {
-        password = value  // Asigna el nuevo valor a 'password'
+        password = value
+        if (_loginState.value is LoginState.EmptyFields || _loginState.value is LoginState.InvalidCredentials) {
+            _loginState.value = LoginState.Idle
+        }
     }
 
     // Función para manejar el inicio de sesión
@@ -51,8 +61,20 @@ class LoginViewModel(
 
             // Actualizamos el estado según el resultado del login
             _loginState.value = when {
-                result.isSuccess -> LoginState.Success  // Si el login es exitoso, cambiamos el estado a Success
-                else -> LoginState.InvalidCredentials  // Si falla, actualizamos el estado a InvalidCredentials
+                result.isSuccess -> LoginState.Success
+                else -> {
+                    val exception = result.exceptionOrNull()
+                    when (exception) {
+                        is FirebaseAuthInvalidCredentialsException,
+                        is FirebaseAuthInvalidUserException -> {
+                            LoginState.InvalidCredentials("Correo o contraseña inválidos.")
+                        }
+
+                        else -> {
+                            LoginState.Error("Error de red. Intenta más tarde.")
+                        }
+                    }
+                }
             }
         }
     }
