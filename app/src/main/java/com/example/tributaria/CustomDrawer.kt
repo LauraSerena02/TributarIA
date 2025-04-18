@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AttachMoney
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -97,6 +98,12 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
         }
         DrawerButton("Asistencia financiera", Icons.Default.AttachMoney) {
             navController.navigate("financial_assistance") {
+                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                launchSingleTop = true
+            }
+        }
+        DrawerButton("Calculadora VAN y TIR", Icons.Rounded.Calculate) {
+            navController.navigate("van_tir") {
                 popUpTo(navController.graph.startDestinationId) { inclusive = false }
                 launchSingleTop = true
             }

@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.tributaria.features.calculator.VanTirCalculatorScreen
 import com.example.tributaria.features.login.presentation.LoginScreen
 import com.example.tributaria.features.register.presentation.CreateScreen
 import com.example.tributaria.features.homepage.SuccessScreen
@@ -38,6 +39,7 @@ fun AppNavigator() {
         composable("register") { CreateScreen(navController) }
         composable("recover") { RecoverScreen(navController) }
         composable("news") { NewsScreen(navController) }
+        composable("van_tir") { VanTirCalculatorScreen(navController) }
     }
 }
 
