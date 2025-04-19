@@ -39,6 +39,7 @@ import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
+import kotlin.math.abs
 
 @Composable
 fun VanTirCalculatorScreen(navController: NavHostController) {
@@ -224,7 +225,7 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
         }
     }
 }
-
+//Cálculos
 fun calcularVanYTir(
     flujos: List<String>,
     inversionInicial: String,
@@ -234,14 +235,32 @@ fun calcularVanYTir(
     val flujoNumerico = flujos.mapNotNull { it.toDoubleOrNull() }
     val inversion = inversionInicial.toDoubleOrNull() ?: return
     val tasa = tasaDescuento.toDoubleOrNull()?.div(100) ?: return
+
+    // VAN: clásico con tasa de descuento
     val vanCalculado = flujoNumerico
         .mapIndexed { i, f -> f / Math.pow(1 + tasa, (i + 1).toDouble()) }
         .sum() - inversion
-    val tirEstimado = try {
-        val tasaEstimada = (flujoNumerico.sum() - inversion) / inversion
-        "%.2f".format(tasaEstimada * 100)
-    } catch (e: Exception) {
-        null
+
+    // TIR: búsqueda entre 0.0001 y 1.0 (0.01% a 100%)
+    var mejorTasa = 0.0
+    var mejorVan = Double.MAX_VALUE
+
+    for (i in 1..20000) {
+        val tasaPrueba = i / 10000.0  // pasos de 0.0001
+        val vanPrueba = flujoNumerico
+            .mapIndexed { index, flujo -> flujo / Math.pow(1 + tasaPrueba, (index + 1).toDouble()) }
+            .sum() - inversion
+
+        if (abs(vanPrueba) < abs(mejorVan)) {
+            mejorVan = vanPrueba
+            mejorTasa = tasaPrueba
+        }
     }
-    onResultado("%.2f".format(vanCalculado), tirEstimado)
+
+    val tirCalculada = mejorTasa * 100
+
+    onResultado(
+        "%.2f".format(vanCalculado),
+        "%.3f".format(tirCalculada)
+    )
 }
