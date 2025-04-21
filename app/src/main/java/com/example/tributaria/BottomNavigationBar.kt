@@ -23,41 +23,57 @@ fun BottomNavigationBar(navController: NavController) {
             icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
             selected = false,
-            onClick = {navController.navigate("success") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
-                launchSingleTop = true
-
-            }}
+            onClick = {
+                navController.navigate("success") {
+                    popUpTo("success") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
         )
 
-        // Gemini IA navigation item with a custom image icon
+        // Gemini IA
         NavigationBarItem(
             icon = {
                 Image(
                     painter = painterResource(id = R.drawable.ic_gemini),
                     contentDescription = "Gemini IA",
-                    modifier = Modifier.size(24.dp) // Adjust the size as needed
+                    modifier = Modifier.size(24.dp)
                 )
             },
             label = { Text("Gemini IA") },
             selected = false,
-            onClick = {}
+            onClick = {
+                navController.navigate("gemini_ia") {
+                    popUpTo("success") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
         )
 
-        // Calendar navigation item
+        // Calendar
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Event, contentDescription = "Calendario") },
             label = { Text("Calendario") },
             selected = false,
-            onClick = {}
+            onClick = {
+                navController.navigate("calendar") {
+                    popUpTo("success") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
         )
 
-        // Forum navigation item
+        // Forum
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.ChatBubble, contentDescription = "Foro") },
             label = { Text("Foro") },
             selected = false,
-            onClick = {}
+            onClick = {
+                navController.navigate("forum") {
+                    popUpTo("success") { inclusive = false }
+                    launchSingleTop = true
+                }
+            }
         )
     }
 }

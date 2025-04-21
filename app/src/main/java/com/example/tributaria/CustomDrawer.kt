@@ -92,43 +92,43 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
         // Navigation buttons
         DrawerButton("Inicio", Icons.Default.Home) {
             navController.navigate("success") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                popUpTo("success") { inclusive = false }
                 launchSingleTop = true
             }
         }
         DrawerButton("Asistencia financiera", Icons.Default.AttachMoney) {
             navController.navigate("financial_assistance") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                popUpTo("success") { inclusive = true }
                 launchSingleTop = true
             }
         }
         DrawerButton("Calculadora VAN y TIR", Icons.Rounded.Calculate) {
             navController.navigate("van_tir") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                popUpTo("sucess") { inclusive = true }
                 launchSingleTop = true
             }
         }
         DrawerButton("Asistencia tributaria", Icons.Default.AccountBalance) {
             navController.navigate("tax_assistance") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                popUpTo("success") { inclusive = true }
                 launchSingleTop = true
             }
         }
         DrawerButton("Configuración", Icons.Default.Settings) {
             navController.navigate("settings") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = false }
+                popUpTo("success") { inclusive = true }
                 launchSingleTop = true
             }
         }
         DrawerButton("Cerrar Sesión", Icons.AutoMirrored.Filled.Logout) {
-            onLogout()  // Ejecuta la lógica de cierre de sesión si es necesario
+            onLogout()
             navController.navigate("login") {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true } // Elimina todas las pantallas previas
+                popUpTo(0) { inclusive = true }
                 launchSingleTop = true
             }
         }
 
-        Spacer(modifier = Modifier.height(200.dp))
+        Spacer(modifier = Modifier.height(150.dp))
 
         // Footer
         Text("Creado por", fontSize = 12.sp, color = Color.Black)
