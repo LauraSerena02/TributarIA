@@ -46,6 +46,9 @@ fun LoginScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    LaunchedEffect(Unit) {
+        viewModel.checkUserSession()
+    }
 
     LaunchedEffect(loginState) {
         when (loginState) {

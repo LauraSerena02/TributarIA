@@ -35,6 +35,21 @@ class LoginViewModel(
         }
     }
 
+    fun checkUserSession() {
+        val currentUser = authRepository.getCurrentUser()
+        if (currentUser != null) {
+            _loginState.value = LoginState.Success // Ya está logueado
+        } else {
+            _loginState.value = LoginState.Idle // No está logueado
+        }
+    }
+
+    fun logout() {
+        authRepository.logout()
+        _loginState.value = LoginState.Idle
+    }
+
+
     // Función para actualizar la contraseña
     fun updatePassword(value: String) {
         password = value

@@ -1,4 +1,5 @@
 package com.example.tributaria
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,12 +13,22 @@ import com.example.tributaria.features.calculator.VanTirCalculatorScreen
 import com.example.tributaria.features.login.presentation.LoginScreen
 import com.example.tributaria.features.register.presentation.CreateScreen
 import com.example.tributaria.features.success.presentation.SuccessScreen
-import com.example.tributaria.features.news.NewsScreen
 import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.tributaria.features.home.HomeScreen
+import com.example.tributaria.features.news.presentation.DetailsScreen
+import com.example.tributaria.features.news.presentation.NewsScreen
+import dagger.hilt.android.AndroidEntryPoint
 
+
+object Destinations {
+    const val LIST_SCREEN = "LIST_SCREEN"
+    const val DETAILS_SCREEN = "DETAILS_SCREEN"
+}
+
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,14 +57,27 @@ fun AppNavigator() {
 
     NavHost(
         navController = navController,
-        startDestination = "login",
+        startDestination = "HomeScreen",
         modifier = Modifier
     ) {
+        composable("HomeScreen") { HomeScreen(navController) }
         composable("login") { LoginScreen(navController) }
         composable("success") { SuccessScreen(navController) }
         composable("register") { CreateScreen(navController) }
         composable("recover") { RecoverScreen(navController) }
-        composable("news") { NewsScreen(navController) }
         composable("van_tir") { VanTirCalculatorScreen(navController) }
+
+
+        // ✅ Solo una entrada para NewsScreen
+        composable(Destinations.LIST_SCREEN) {
+            NewsScreen(navController)
+        }
+
+        // ✅ Detalles de noticia
+        composable("${Destinations.DETAILS_SCREEN}/{newTitle}") {
+            it.arguments?.getString("newTitle")?.let { title ->
+                DetailsScreen(title, navController)
+            }
+        }
     }
 }

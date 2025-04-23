@@ -37,11 +37,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tributaria.features.login.viewmodel.LoginViewModel
+
 
 
 @Composable
 fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
+    // Obtén el LoginViewModel usando viewModel()
+    val loginViewModel: LoginViewModel = viewModel()
     Column(
         modifier = Modifier
             .fillMaxHeight()
@@ -121,7 +126,10 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
             }
         }
         DrawerButton("Cerrar Sesión", Icons.AutoMirrored.Filled.Logout) {
-            onLogout()
+            // Llama a la función de logout desde la instancia del ViewModel
+            loginViewModel.logout()
+
+            // Navegar al login después de cerrar sesión
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
                 launchSingleTop = true
