@@ -65,6 +65,7 @@ fun AppNavigator() {
         composable("success") { SuccessScreen(navController) }
         composable("register") { CreateScreen(navController) }
         composable("recover") { RecoverScreen(navController) }
+        composable("news") { NewsScreen(navController) }
         composable("van_tir") { VanTirCalculatorScreen(navController) }
 
 
