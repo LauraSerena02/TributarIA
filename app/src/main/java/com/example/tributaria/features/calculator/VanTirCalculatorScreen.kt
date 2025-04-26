@@ -37,8 +37,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import kotlin.math.abs
 
 @Composable
@@ -51,6 +52,8 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
     var flujos by remember { mutableStateOf(mutableListOf("")) }
     var van by remember { mutableStateOf<String?>(null) }
     var tir by remember { mutableStateOf<String?>(null) }
+    var feedbackMessage by remember { mutableStateOf("") }
+    var showDialog by remember { mutableStateOf(false) }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -131,7 +134,7 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                                 label = { Text("Año ${index + 1}") },
                                 placeholder = { Text("Flujo de caja (cobros - pagos)") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                modifier = Modifier.fillMaxWidth(),
+                                modifier = Modifier.weight(1f).padding(end = 8.dp),
                                 colors = TextFieldDefaults.colors(
                                     focusedIndicatorColor = Color(0xFF1E40AF),
                                     unfocusedIndicatorColor = Color(0xFF1E40AF),
@@ -140,15 +143,15 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                                 )
                             )
 
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(4.dp))
 
                             IconButton(
                                 onClick = {
-                                if (flujos.size > 1) {
-                                    flujos = flujos.toMutableList().also { it.removeAt(index) }
-                                } }
+                                    if (flujos.size > 1) {
+                                        flujos = flujos.toMutableList().also { it.removeAt(index) }
+                                    } }
                             ) {
-                                Icon(Icons.Default.Close, contentDescription = "Eliminar", tint = Color.Red)
+                                Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
                             }
                         }
                     }
@@ -157,7 +160,7 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
 
                     Button(
                         onClick = {
-                        flujos = (flujos + "") as MutableList<String>},
+                            flujos = (flujos + "") as MutableList<String>},
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFF1E40AF),
@@ -203,15 +206,17 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                         cursorColor = Color(0xFF1E40AF)
                     )
                 )
-
                 Spacer(Modifier.height(12.dp))
-
                 Button(
                     onClick = {
                         calcularVanYTir(flujos, inversionInicial, tasaDescuento) { vanResult, tirResult ->
                             van = vanResult
                             tir = tirResult
+                            feedbackMessage = generarRetroalimentacion(vanResult, tirResult, tasaDescuento)
+                            showDialog = true
+
                         }
+
                     },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.buttonColors(
@@ -221,6 +226,45 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                 ) {
                     Text("Calcular")
                 }
+                if (showDialog) {
+                    AlertDialog(
+                        onDismissRequest = { showDialog = false },
+                        title = {
+                            Box(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "Resultado", textAlign = TextAlign.Center)
+                            }
+                        },
+                        text = {
+                            Text(
+                                text = feedbackMessage,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        confirmButton = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Button(
+                                    onClick = { showDialog = false },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF1E40AF),
+                                        contentColor = Color.White
+                                    )
+                                ) {
+                                    Text("Aceptar")
+                                }
+                            }
+                        }
+                    )
+                }
+
             }
         }
     }
@@ -236,31 +280,60 @@ fun calcularVanYTir(
     val inversion = inversionInicial.toDoubleOrNull() ?: return
     val tasa = tasaDescuento.toDoubleOrNull()?.div(100) ?: return
 
-    // VAN: clásico con tasa de descuento
+    // VAN
     val vanCalculado = flujoNumerico
         .mapIndexed { i, f -> f / Math.pow(1 + tasa, (i + 1).toDouble()) }
         .sum() - inversion
 
-    // TIR: búsqueda entre 0.0001 y 1.0 (0.01% a 100%)
-    var mejorTasa = 0.0
-    var mejorVan = Double.MAX_VALUE
+    // TIR usando búsqueda binaria
+    var low = -0.9999  // Tasa mínima permitida (puede ser negativa)
+    var high = 1.0     // Tasa máxima permitida
+    var tir = 0.0
+    val epsilon = 1e-6  // Precisión deseada
 
-    for (i in 1..20000) {
-        val tasaPrueba = i / 10000.0  // pasos de 0.0001
-        val vanPrueba = flujoNumerico
-            .mapIndexed { index, flujo -> flujo / Math.pow(1 + tasaPrueba, (index + 1).toDouble()) }
+    repeat(100) {
+        val mid = (low + high) / 2
+        val vanMid = flujoNumerico
+            .mapIndexed { index, flujo -> flujo / Math.pow(1 + mid, (index + 1).toDouble()) }
             .sum() - inversion
 
-        if (abs(vanPrueba) < abs(mejorVan)) {
-            mejorVan = vanPrueba
-            mejorTasa = tasaPrueba
+        if (abs(vanMid) < epsilon) {
+            tir = mid
+            return@repeat
+        }
+
+        if (vanMid > 0) {
+            low = mid
+        } else {
+            high = mid
         }
     }
 
-    val tirCalculada = mejorTasa * 100
+    val tirCalculada = tir * 100
 
     onResultado(
         "%.2f".format(vanCalculado),
         "%.3f".format(tirCalculada)
     )
+}
+
+fun generarRetroalimentacion(vanStr: String, tirStr: String?, tasaDescuentoStr: String): String {
+    val van = vanStr.toDoubleOrNull() ?: return ""
+    val tir = tirStr?.toDoubleOrNull() ?: return ""
+    val tmar = tasaDescuentoStr.toDoubleOrNull() ?: return ""
+
+    val vanFeedback = when {
+        van > 0 -> "✅ El VAN es mayor a 0, lo que indica que el proyecto es rentable."
+        van == 0.0 -> "⚠️ El VAN es igual a 0, el proyecto es indiferente (sin ganancia ni pérdida)."
+        else -> "❌ El VAN es menor a 0, el proyecto no es rentable."
+    }
+
+    val tirFeedback = when {
+        tir > tmar && tir <= 25 -> "✅ La TIR es mayor a la tasa de descuento (TMAR), el proyecto es rentable."
+        tir > tmar && tir > 25 -> "✅ La TIR es mayor a la TMAR, pero al ser superior al 25%, se recomienda revisar los flujos de caja por posible inconsistencia."
+        tir == tmar -> "⚠️ La TIR es igual a la TMAR, el proyecto es indiferente."
+        else -> "❌ La TIR es menor a la TMAR, el proyecto no es rentable."
+    }
+
+    return "$vanFeedback\n$tirFeedback"
 }
