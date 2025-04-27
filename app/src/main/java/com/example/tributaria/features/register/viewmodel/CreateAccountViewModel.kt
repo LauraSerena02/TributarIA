@@ -6,11 +6,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import android.util.Patterns
-
-// Importación del estado de la pantalla de registro
-
-// Importación del repositorio que maneja la lógica de registro con Firebase
 import com.example.tributaria.features.register.respository.UserRepository
+import android.util.Log
 
 // ViewModel responsable de manejar el estado y la lógica de la pantalla de creación de cuenta
 class CreateAccountViewModel : ViewModel() {
@@ -55,6 +52,8 @@ class CreateAccountViewModel : ViewModel() {
     // Lógica para registrar al usuario
     fun register() {
         val current = _state.value
+
+        Log.d("CreateAccountViewModel", "tu eres: ${current.username}")
 
         // Validaciones básicas antes de intentar registrar
         if (

@@ -68,6 +68,7 @@ dependencies {
 
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
     implementation ("com.google.dagger:hilt-android:2.48")
+    implementation(libs.androidx.media3.common.ktx)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     testImplementation("junit:junit:4.+")
@@ -93,7 +94,7 @@ dependencies {
     //Activity
     implementation("androidx.activity:activity-compose:1.7.2")
 
-
+    implementation ("com.google.accompanist:accompanist-swiperefresh:0.27.0")
 
 
     // Import the Firebase BoM

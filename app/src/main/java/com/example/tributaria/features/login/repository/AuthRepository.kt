@@ -1,8 +1,10 @@
 package com.example.tributaria.features.login.repository
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.auth.FirebaseUser
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository {
@@ -22,10 +24,14 @@ class AuthRepository {
         }
     }
 
-    // Métodos adicionales
+    // cerrar sesion
     fun logout() {
         firebaseAuth.signOut()
     }
 
-    fun getCurrentUser() = firebaseAuth.currentUser
+    fun getCurrentUser(): FirebaseUser? {
+        Log.d("AuthRepository", "Usuario actual: ${firebaseAuth.currentUser?.displayName}")
+        return firebaseAuth.currentUser
+    }
+
 }

@@ -86,154 +86,153 @@ fun LoginScreen(
                 .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-                Spacer(modifier = Modifier.height(50.dp))
+            Spacer(modifier = Modifier.height(50.dp))
 
-                // Logo
-                Image(
-                    painter = painterResource(id = R.drawable.logotria),
-                    contentDescription = "Login Image",
-                    modifier = Modifier
-                        .height(200.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Fit
-                )
+            // Logo
+            Image(
+                painter = painterResource(id = R.drawable.logotria),
+                contentDescription = "Login Image",
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Fit
+            )
 
-                // Título
-                Text(
-                    text = "Iniciar sesión",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    color = Color.Black
-                )
+            // Título
+            Text(
+                text = "Iniciar sesión",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(vertical = 16.dp),
+                color = Color.Black
+            )
 
-                when (loginState) {
-                    is LoginState.InvalidCredentials -> {
-                        Text(
-                            text = "Email o contraseña incorrectos.",
-                            color = Color.Red,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-
-                    is LoginState.Error -> {
-                        Text(
-                            text = (loginState as LoginState.Error).errorMessage,
-                            color = Color.Red,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-
-                    else -> Unit
+            when (loginState) {
+                is LoginState.InvalidCredentials -> {
+                    Text(
+                        text = "Email o contraseña incorrectos.",
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
-                // Campo Email
-                OutlinedTextField(
-                    value = viewModel.username,
-                    onValueChange = viewModel::updateUsername,
-                    label = { Text("Email") },
-                    leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "User Icon") },
-                    placeholder = { Text("nombre@dominio.com") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 6.dp),
-                    isError = loginState is LoginState.EmptyFields && viewModel.username.isBlank(),
-                    supportingText = {
-                        if (loginState is LoginState.EmptyFields && viewModel.username.isBlank()) {
-                            Text("Campo obligatorio", color = Color.Red)
-                        }
-                    }
-                )
-
-                // Campo Contraseña
-                OutlinedTextField(
-                    value = viewModel.password,
-                    onValueChange = viewModel::updatePassword,
-                    label = { Text("Contraseña") },
-                    leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password Icon") },
-                    trailingIcon = {
-                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                            Icon(
-                                imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
-                                contentDescription = "Toggle Password Visibility"
-                            )
-                        }
-                    },
-                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                    isError = loginState is LoginState.EmptyFields && viewModel.password.isBlank(),
-                    supportingText = {
-                        if (loginState is LoginState.EmptyFields && viewModel.password.isBlank()) {
-                            Text("Campo obligatorio", color = Color.Red)
-                        }
-                    }
-                )
-
-                // Botón Login
-                Button(
-                    onClick = {
-                        viewModel.login()
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    enabled = loginState != LoginState.Loading,
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
-                ) {
-                    if (loginState == LoginState.Loading) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier
-                                .size(20.dp)
-                                .align(Alignment.CenterVertically)
-                        )
-                    } else {
-                        Text("Iniciar sesión", color = Color.White)
-                    }
+                is LoginState.Error -> {
+                    Text(
+                        text = (loginState as LoginState.Error).errorMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
 
-                // Botón Crear Cuenta
-                Button(
-                    onClick = { navController.navigate("register") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
-                ) {
-                    Text("Crear cuenta", color = Color.White)
-                }
-
-                // Enlace Olvidaste la Contraseña
-                Text(
-                    text = "¿Olvidaste la contraseña?",
-                    color = Color.DarkGray,
-                    style = TextStyle(textDecoration = TextDecoration.Underline),
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .clickable {
-                            navController.navigate("recover") {
-                                launchSingleTop = true
-                            }
-                        }
-                )
-
-                // Important legal disclaimer
-                Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    text = "**Aviso importante**: TributarIA es una aplicacion independiente y " +
-                            "no esta afiliada ni representa a ninguna entidad gubernamental. La información " +
-                            "proporcionada se basa en fuentes públicas oficiales.",
-                    fontSize = 10.sp,  // Small text size
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .padding(top = 5.dp)
-                        .fillMaxWidth(),
-                    color = Color.DarkGray
-                )
+                else -> Unit
             }
+
+            // Campo Email
+            OutlinedTextField(
+                value = viewModel.username,
+                onValueChange = viewModel::updateUsername,
+                label = { Text("Email") },
+                leadingIcon = { Icon(Icons.Filled.Person, contentDescription = "User Icon") },
+                placeholder = { Text("nombre@dominio.com") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 6.dp),
+                isError = loginState is LoginState.EmptyFields && viewModel.username.isBlank(),
+                supportingText = {
+                    if (loginState is LoginState.EmptyFields && viewModel.username.isBlank()) {
+                        Text("Campo obligatorio", color = Color.Red)
+                    }
+                }
+            )
+
+            // Campo Contraseña
+            OutlinedTextField(
+                value = viewModel.password,
+                onValueChange = viewModel::updatePassword,
+                label = { Text("Contraseña") },
+                leadingIcon = { Icon(Icons.Filled.Lock, contentDescription = "Password Icon") },
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = "Toggle Password Visibility"
+                        )
+                    }
+                },
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                isError = loginState is LoginState.EmptyFields && viewModel.password.isBlank(),
+                supportingText = {
+                    if (loginState is LoginState.EmptyFields && viewModel.password.isBlank()) {
+                        Text("Campo obligatorio", color = Color.Red)
+                    }
+                }
+            )
+
+            // Botón Login
+            Button(
+                onClick = {
+                    viewModel.login()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                enabled = loginState != LoginState.Loading,
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
+            ) {
+                if (loginState == LoginState.Loading) {
+                    CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .align(Alignment.CenterVertically)
+                    )
+                } else {
+                    Text("Iniciar sesión", color = Color.White)
+                }
+            }
+
+            // Botón Crear Cuenta
+            Button(
+                onClick = { navController.navigate("register") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2536A7))
+            ) {
+                Text("Crear cuenta", color = Color.White)
+            }
+
+            // Enlace Olvidaste la Contraseña
+            Text(
+                text = "¿Olvidaste la contraseña?",
+                color = Color.DarkGray,
+                style = TextStyle(textDecoration = TextDecoration.Underline),
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+                    .clickable {
+                        navController.navigate("recover") {
+                            launchSingleTop = true
+                        }
+                    }
+            )
+
+            // Important legal disclaimer
+            Spacer(modifier = Modifier.height(5.dp))
+            Text(
+                text = "**Aviso importante**: TributarIA es una aplicacion independiente y " +
+                        "no esta afiliada ni representa a ninguna entidad gubernamental. La información " +
+                        "proporcionada se basa en fuentes públicas oficiales.",
+                fontSize = 10.sp,  // Small text size
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .fillMaxWidth(),
+                color = Color.DarkGray
+            )
         }
     }
-
+}

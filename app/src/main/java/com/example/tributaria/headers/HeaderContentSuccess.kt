@@ -23,25 +23,26 @@ import androidx.compose.ui.unit.sp
 import com.example.tributaria.R
 
 @Composable
-fun HeaderContentSuccess(onMenuClick: () -> Unit) {
+fun HeaderContentSuccess(
+    onMenuClick: () -> Unit,
+    username: String // <-- nuevo parámetro
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(160.dp)
-            .background(Color(0xFF1E40AF)) // Dark blue background
+            .background(Color(0xFF1E40AF))
             .padding(horizontal = 16.dp, vertical = 20.dp)
     ) {
-        // Menu button (hamburger icon)
         IconButton(
             onClick = onMenuClick,
             modifier = Modifier
                 .align(Alignment.TopStart)
-                .offset(y = 25.dp) // Moves the icon further down
+                .offset(y = 25.dp)
         ) {
             Icon(Icons.Default.Menu, contentDescription = "Menú", tint = Color.White)
         }
 
-        // Row containing greeting text and avatar image
         Row(
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Bottom
@@ -49,14 +50,13 @@ fun HeaderContentSuccess(onMenuClick: () -> Unit) {
             Spacer(modifier = Modifier.width(10.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Spacer(modifier = Modifier.weight(1f)) // Pushes the text to the bottom
-                Text("Hola, Admin", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Spacer(modifier = Modifier.weight(1f))
+                Text("Hola, $username", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
                 Text("¿Qué planificación realizaremos hoy?", color = Color.White, fontSize = 14.sp)
             }
 
             Spacer(modifier = Modifier.width(10.dp))
 
-            // User avatar
             Image(
                 painter = painterResource(id = R.drawable.avatar_placeholder),
                 contentDescription = "Avatar",
