@@ -134,5 +134,9 @@ dependencies {
 
     implementation ("io.insert-koin:koin-androidx-compose:3.5.3")
 
+    implementation("com.patrykandpatrick.vico:core:1.13.0")
+    implementation("com.patrykandpatrick.vico:compose:1.13.0")
+    implementation("com.patrykandpatrick.vico:compose-m3:1.13.0")
+
 
 }

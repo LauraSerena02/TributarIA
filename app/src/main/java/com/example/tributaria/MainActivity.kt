@@ -17,6 +17,7 @@ import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.getValue
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.tributaria.features.balancepoint.presentation.BalancePointScreen
 import com.example.tributaria.features.home.HomeScreen
 import com.example.tributaria.features.news.presentation.DetailsScreen
 import com.example.tributaria.features.news.presentation.NewsScreen
@@ -67,6 +68,7 @@ fun AppNavigator() {
         composable("recover") { RecoverScreen(navController) }
         composable("news") { NewsScreen(navController) }
         composable("van_tir") { VanTirCalculatorScreen(navController) }
+        composable("balance_point") { BalancePointScreen(navController) }
 
 
         // ✅ Solo una entrada para NewsScreen
