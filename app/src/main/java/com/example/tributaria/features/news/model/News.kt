@@ -1,10 +1,12 @@
 package com.example.tributaria.features.news.model
 
+
 data class News(
-    var title: String,
-    var content: String?,
-    var author: String?,
-    var url: String,
-    val urlToImage: String?,
-    var publishedAt: String? = null,
-)
+    val title: String,
+    val content: String = "Sin contenido disponible", // Valor por defecto
+    val author: String? = null, // Autor opcional
+    val url: String,
+    val urlToImage: String? = null,
+    val publishedAt: String? = null,
+    )
+

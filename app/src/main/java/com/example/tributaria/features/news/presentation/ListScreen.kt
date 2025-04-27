@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -38,23 +37,22 @@ import kotlinx.coroutines.launch
 fun ListScreen(
     navController: NavController,
     keyword: String,
+    country: String, // Agregado el parámetro 'country'
     viewModel: ListScreenViewModel = hiltViewModel()
 ) {
     val newsList by viewModel.news.observeAsState(emptyList())
     val isLoading by viewModel.isLoading.observeAsState(false)
     val errorMessage by viewModel.errorMessage.observeAsState(null)
 
-    // Efecto que actualiza las noticias cuando cambia el keyword
-    LaunchedEffect(keyword) {
-        viewModel.fetchNewsByKeyword(keyword)
+    // Efecto que actualiza las noticias cuando cambia el keyword o el país
+    LaunchedEffect(keyword, country) {
+        viewModel.fetchNews(keyword, country)  // Ahora se pasa el 'country'
     }
 
     ListContent(navController, newsList, isLoading, errorMessage)
 }
 
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListContent(
     navController: NavController,
@@ -137,6 +135,12 @@ fun NewsScreen(navController: NavController) {
     var selectedCategory by remember { mutableStateOf(categories[0]) }
     var searchQuery by remember { mutableStateOf("") }
 
+
+
+
+    // Definir el país, por ejemplo, "us" para Estados Unidos
+    val country = "col"
+
     // Efecto que escucha los cambios del query para hacer la búsqueda automáticamente
     LaunchedEffect(searchQuery) {
         kotlinx.coroutines.delay(500)
@@ -204,12 +208,13 @@ fun NewsScreen(navController: NavController) {
                     modifier = Modifier.padding(top = 4.dp, bottom = 8.dp) // puedes ajustar más si es necesario
                 )
 
+                // Pasar 'country' al ListScreen
                 ListScreen(
                     navController = navController,
-                    keyword = selectedCategory
+                    keyword = selectedCategory,
+                    country = country // Aquí pasas el valor de 'country'
                 )
             }
-
         }
     }
 }

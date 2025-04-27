@@ -1,13 +1,17 @@
 package com.example.tributaria.features.login.viewmodel
 
+import androidx.annotation.OptIn
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.media3.common.util.Log
+import androidx.media3.common.util.UnstableApi
 import com.example.tributaria.features.login.repository.AuthRepository
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
+import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -27,6 +31,10 @@ class LoginViewModel(
     var username by mutableStateOf("") // El valor de 'username' se actualiza cuando cambia el campo en la UI
     var password by mutableStateOf("") // El valor de 'password' se actualiza cuando cambia el campo en la UI
 
+    // Agregar el estado del nombre de usuario
+    private val _userName = MutableStateFlow<String>("") // Variable para almacenar el nombre de usuario
+    val userName: StateFlow<String> = _userName
+
     // Función para actualizar el nombre de usuario
     fun updateUsername(value: String) {
         username = value
@@ -35,20 +43,43 @@ class LoginViewModel(
         }
     }
 
+    @OptIn(UnstableApi::class)
     fun checkUserSession() {
         val currentUser = authRepository.getCurrentUser()
         if (currentUser != null) {
-            _loginState.value = LoginState.Success // Ya está logueado
+            _loginState.value = LoginState.Success
+            loadUsernameFromFirestore(currentUser.uid)
+
         } else {
-            _loginState.value = LoginState.Idle // No está logueado
+            _loginState.value = LoginState.Idle
+            _userName.value = ""  // Resetear el nombre si no hay usuario autenticado
         }
     }
+
+    // Función para cargar el nombre de usuario desde Firestore
+    @OptIn(UnstableApi::class)
+    private fun loadUsernameFromFirestore(uid: String) {
+        val firestore = FirebaseFirestore.getInstance()
+        firestore.collection("users").document(uid)
+            .get()
+            .addOnSuccessListener { document ->
+                if (document.exists()) {
+                    val name = document.getString("username") ?: "Usuario"
+                    _userName.value = name
+                } else {
+                    _userName.value = "Usuario desconocido"
+                }
+            }
+            .addOnFailureListener { exception ->
+                _userName.value = "Error al cargar el nombre"
+            }
+    }
+
 
     fun logout() {
         authRepository.logout()
         _loginState.value = LoginState.Idle
     }
-
 
     // Función para actualizar la contraseña
     fun updatePassword(value: String) {
@@ -76,7 +107,12 @@ class LoginViewModel(
 
             // Actualizamos el estado según el resultado del login
             _loginState.value = when {
-                result.isSuccess -> LoginState.Success
+                result.isSuccess -> {
+                    // Recupera el nombre de usuario desde Firestore
+                    val user = authRepository.getCurrentUser()
+                    user?.uid?.let { loadUsernameFromFirestore(it) }
+                    LoginState.Success
+                }
                 else -> {
                     val exception = result.exceptionOrNull()
                     when (exception) {

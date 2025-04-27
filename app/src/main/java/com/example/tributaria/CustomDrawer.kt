@@ -1,5 +1,6 @@
 package com.example.tributaria
 
+import androidx.annotation.OptIn
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -27,6 +28,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,21 +41,31 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.example.tributaria.features.register.viewmodel.CreateAccountViewModel
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner.current
+import androidx.media3.common.util.UnstableApi
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
-
-
+@OptIn(UnstableApi::class)
 @Composable
-fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
-    // Obtén el LoginViewModel usando viewModel()
+fun CustomDrawer(
+    navController: NavController,
+    onLogout: () -> Unit
+) {
     val loginViewModel: LoginViewModel = viewModel()
+    val userName by loginViewModel.userName.collectAsState(initial = "Cargando...")
+
     Column(
         modifier = Modifier
             .fillMaxHeight()
             .width(280.dp)
             .background(
                 brush = Brush.verticalGradient(
-                    colors = listOf(Color(0xFF1E3A8A), Color.White) // Gradient background
+                    colors = listOf(Color(0xFF1E3A8A), Color.White)
                 )
             )
             .padding(16.dp),
@@ -61,7 +73,7 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
     ) {
         Spacer(modifier = Modifier.height(60.dp))
 
-        // User avatar
+        // Avatar de usuario
         Image(
             painter = painterResource(id = R.drawable.avatar_placeholder),
             contentDescription = "Avatar",
@@ -74,8 +86,13 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
 
         Spacer(modifier = Modifier.height(10.dp))
 
-        // User name
-        Text("Admin", fontSize = 20.sp, fontWeight = FontWeight.Bold, color = Color.White)
+        // Nombre del usuario
+        Text(
+            text = userName,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
 
         Spacer(modifier = Modifier.height(10.dp))
 
@@ -132,8 +149,7 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
             // Navegar al login después de cerrar sesión
             navController.navigate("login") {
                 popUpTo(0) { inclusive = true }
-                launchSingleTop = true
-            }
+                launchSingleTop = true }
         }
 
         Spacer(modifier = Modifier.height(150.dp))
@@ -143,6 +159,7 @@ fun CustomDrawer(navController: NavController, onLogout: () -> Unit) {
         Text("TRICODE STUDIO", fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Color.Black)
     }
 }
+
 
 // 🔒 Private function for drawer buttons
 @Composable

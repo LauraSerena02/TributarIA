@@ -1,6 +1,5 @@
 package com.example.tributaria.features.news.repository
 
-
 import com.example.tributaria.features.news.model.News
 import com.example.tributaria.features.news.provider.NewsProvider
 import javax.inject.Inject

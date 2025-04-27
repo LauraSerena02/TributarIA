@@ -1,11 +1,14 @@
 package com.example.tributaria.features.success.presentation
 
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.ShowChart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -24,13 +27,29 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import com.example.tributaria.headers.HeaderContentSuccess
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
 import com.example.tributaria.R
-import org.koin.androidx.compose.koinViewModel
+import com.example.tributaria.features.login.viewmodel.LoginViewModel
+import com.example.tributaria.features.news.model.News
+import com.example.tributaria.features.register.viewmodel.CreateAccountViewModel
 
 @Composable
-fun SuccessScreen(navController: NavHostController, viewModel: SuccessViewModel = koinViewModel()) {
+fun SuccessScreen(
+    navController: NavHostController,
+    viewModel: SuccessViewModel = hiltViewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val newsList by viewModel.newsList.collectAsState()
+    val refreshing = remember { mutableStateOf(false) }
+    val username by loginViewModel.userName.collectAsState(initial = "")
+
+    // llama checkUserSession al cargar la pantalla
+    LaunchedEffect(Unit) {
+        loginViewModel.checkUserSession()
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -44,33 +63,38 @@ fun SuccessScreen(navController: NavHostController, viewModel: SuccessViewModel 
         Scaffold(
             topBar = {
                 CommonTopBar {
-                    HeaderContentSuccess(onMenuClick = { scope.launch { drawerState.open() } })
+                    HeaderContentSuccess(
+                        onMenuClick = { scope.launch { drawerState.open() } },
+                        username = username
+                    )
                 }
             },
             bottomBar = { BottomNavigationBar(navController) }
         ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(horizontal = 16.dp)
+            SwipeRefresh(
+                state = rememberSwipeRefreshState(isRefreshing = refreshing.value),
+                onRefresh = {
+                    refreshing.value = true
+                    viewModel.getNews("finanzas")
+                    refreshing.value = false
+                }
             ) {
-                NewsSection(navController)
-                IndicatorsSection(viewModel)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = 16.dp)
+                ) {
+                    NewsSection(navController, newsList)
+                    IndicatorsSection(viewModel)
+                }
             }
         }
     }
 }
 
 @Composable
-fun NewsSection(navController: NavController) {
-    val newsList = listOf(
-        "¿Es oportuna la terminación de la modalidad de importación?",
-        "Nuevas regulaciones fiscales para 2025",
-        "El impacto de la inflación en las importaciones",
-        "Cómo optimizar los procesos de aduanas"
-    )
-
+fun NewsSection(navController: NavController, newsList: List<News>) {
     Column(modifier = Modifier.padding(16.dp)) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -101,12 +125,23 @@ fun NewsSection(navController: NavController) {
         }
 
         Spacer(modifier = Modifier.height(20.dp))
-        NewsCarousel(newsList)
+        if (newsList.isNotEmpty()) {
+            NewsCarousel(newsList, navController)
+        } else {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(Icons.Default.Error, contentDescription = "Error", tint = Color.Red, modifier = Modifier.size(64.dp))
+                Text("No se encontraron noticias sobre finanzas en este momento.", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+        }
     }
 }
 
 @Composable
-fun NewsCarousel(newsList: List<String>) {
+fun NewsCarousel(newsList: List<News>, navController: NavController) {
     val infinitePagesCount = Int.MAX_VALUE
     val startPage = infinitePagesCount / 2
     val pagerState = rememberPagerState(initialPage = startPage, pageCount = { infinitePagesCount })
@@ -126,7 +161,11 @@ fun NewsCarousel(newsList: List<String>) {
     ) { index ->
         val page = index % newsList.size
         val pageOffset = (pagerState.currentPage - index) + pagerState.currentPageOffsetFraction
-        val scale = 1f - (0.1f * kotlin.math.abs(pageOffset))
+        val scale = if (pageOffset != 0f) {
+            1f - (0.1f * kotlin.math.abs(pageOffset))
+        } else {
+            1f
+        }
 
         Card(
             modifier = Modifier
@@ -135,19 +174,28 @@ fun NewsCarousel(newsList: List<String>) {
                     scaleX = scale
                     scaleY = scale
                 }
-                .padding(horizontal = 8.dp),
+                .padding(horizontal = 8.dp)
+                .clickable {
+                    navController.navigate("${Destinations.DETAILS_SCREEN}/${newsList[page].title}")
+                },
             shape = RoundedCornerShape(8.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                Image(
-                    painter = painterResource(id = R.drawable.news_placeholder),
+                AsyncImage(
+                    model = newsList[page].urlToImage ?: R.drawable.placeholder,
                     contentDescription = "News Image",
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
+                    contentScale = ContentScale.Crop
                 )
+
                 Text(
-                    text = newsList[page],
+                    text = newsList[page].title,
                     fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(8.dp)
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .fillMaxWidth()
                 )
             }
         }

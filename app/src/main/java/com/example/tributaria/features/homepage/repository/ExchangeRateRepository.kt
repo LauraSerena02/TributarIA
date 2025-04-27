@@ -4,8 +4,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
 import java.net.URL
+import javax.inject.Inject
 
-class ExchangeRateRepository {
+class ExchangeRateRepository @Inject constructor() {
     suspend fun getUsdToCopRate(): Double {
         return withContext(Dispatchers.IO) {
             val response = URL("https://v6.exchangerate-api.com/v6/375fe3d616d402e02f923cc8/latest/USD")

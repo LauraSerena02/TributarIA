@@ -15,7 +15,6 @@ import kotlinx.coroutines.launch
 class ListScreenViewModel @Inject constructor(
     private val repository: NewsRepository
 ) : ViewModel() {
-
     // LiveData para la lista de noticias
     private val _news = MutableLiveData<List<News>>()
     val news: LiveData<List<News>> = _news
@@ -28,23 +27,25 @@ class ListScreenViewModel @Inject constructor(
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?> = _errorMessage
 
-    // Función para obtener noticias según la palabra clave
-    fun fetchNewsByKeyword(keyword: String) {
-        _isLoading.value = true // Indicar que la carga está en proceso
-        _errorMessage.value = null // Limpiar cualquier error previo
+    // Función para obtener noticias según la palabra clave y el país
+    fun fetchNews(keyword: String, country: String) {
+        _isLoading.value = true
+        _errorMessage.value = null
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                val result = repository.searchNewsByKeyword(keyword)
+                val result = if (keyword.isEmpty()) {
+                    repository.getNews(country)  // Obtiene noticias por país si no hay palabra clave
+                } else {
+                    repository.searchNewsByKeyword(keyword)  // Obtiene noticias por palabra clave
+                }
                 _news.postValue(result)
                 _isLoading.postValue(false) // Fin de la carga
             } catch (e: Exception) {
                 _news.postValue(emptyList()) // Lista vacía si ocurre un error
                 _isLoading.postValue(false) // Fin de la carga
-                _errorMessage.postValue("Error al cargar las noticias: ${e.localizedMessage}") // Establecer mensaje de error
+                _errorMessage.postValue("Error al cargar las noticias: ${e.localizedMessage}")
             }
         }
     }
 }
-
-
