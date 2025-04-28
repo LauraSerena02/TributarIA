@@ -156,19 +156,19 @@ fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewM
                         modifier = Modifier.padding(8.dp)
                     ) {
                         Text(
-                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013...",
+                            text = "TributarIA, en cumplimiento de lo señalado en la Ley 1581 de 2012 y el Decreto Reglamentario 1377 de 2013.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales...",
+                            text = "TributarIA implementará todas las acciones necesarias para garantizar la protección y el tratamiento adecuado de los datos personales.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre...",
+                            text = "Se protegerán los derechos a la privacidad, la intimidad y el buen nombre.",
                             textAlign = TextAlign.Justify,
                             lineHeight = 20.sp
                         )
