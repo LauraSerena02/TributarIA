@@ -81,6 +81,12 @@ class LoginViewModel(
         _loginState.value = LoginState.Idle
     }
 
+    val currentUserId: String?
+        get() = authRepository.getCurrentUser()?.uid
+
+    val currentUserName: String?
+        get() = authRepository.getCurrentUser()?.displayName
+
     // Función para actualizar la contraseña
     fun updatePassword(value: String) {
         password = value

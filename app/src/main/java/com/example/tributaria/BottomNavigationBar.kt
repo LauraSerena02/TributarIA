@@ -69,7 +69,7 @@ fun BottomNavigationBar(navController: NavController) {
             label = { Text("Foro") },
             selected = false,
             onClick = {
-                navController.navigate("forum") {
+                navController.navigate("foro") {
                     popUpTo("success") { inclusive = false }
                     launchSingleTop = true
                 }

@@ -15,9 +15,22 @@ import com.example.tributaria.features.register.presentation.CreateScreen
 import com.example.tributaria.features.success.presentation.SuccessScreen
 import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tributaria.features.balancepoint.presentation.BalancePointScreen
+import com.example.tributaria.features.foro.model.ForoViewModel
+import com.example.tributaria.features.foro.presentation.AddPostScreen
+import com.example.tributaria.features.foro.presentation.ForoScreen
 import com.example.tributaria.features.home.HomeScreen
 import com.example.tributaria.features.news.presentation.DetailsScreen
 import com.example.tributaria.features.news.presentation.NewsScreen
@@ -69,6 +82,27 @@ fun AppNavigator() {
         composable("news") { NewsScreen(navController) }
         composable("van_tir") { VanTirCalculatorScreen(navController) }
         composable("balance_point") { BalancePointScreen(navController) }
+        composable ("foro") {ForoScreen(navController)}
+        composable("add_post") { AddPostScreen(navController = navController) }
+        composable("add_post/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
+            val foroViewModel: ForoViewModel = hiltViewModel()
+            val post = foroViewModel.getPostById(postId)
+            if (postId != null && post == null) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        CircularProgressIndicator()
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text("Cargando...")
+                    }
+                }
+            } else {
+                AddPostScreen(navController = navController, postToEdit = post)
+            }
+        }
 
 
         // ✅ Solo una entrada para NewsScreen
