@@ -19,7 +19,6 @@ import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
@@ -57,12 +56,10 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController, loginViewModel: LoginViewModel = viewModel(), viewModel: postViewModel = viewModel(), likesViewModel: LikesViewModel) {
+fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController, loginViewModel: LoginViewModel = viewModel(), viewModel: postViewModel = viewModel()) {
     var showInput by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
     val repository = commentsRepository()
-    val likedPosts by likesViewModel.likedPosts.collectAsState()
-    val isLiked = likedPosts.contains(post.id)
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val username by loginViewModel.userName.collectAsState(initial = "")
@@ -130,9 +127,9 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                 IconButton(onClick = {
                 }) {
                     Icon(
-                        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        imageVector = Icons.Default.Favorite,
                         contentDescription = "Like Post",
-                        tint = if (isLiked) Color.Red else Color.Gray
+                        tint = Color.Red
                     )
                 }
             }

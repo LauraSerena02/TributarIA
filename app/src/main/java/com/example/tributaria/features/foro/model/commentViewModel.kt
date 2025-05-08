@@ -1,6 +1,5 @@
 package com.example.tributaria.features.foro.model
 
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tributaria.features.foro.repository.Comment
