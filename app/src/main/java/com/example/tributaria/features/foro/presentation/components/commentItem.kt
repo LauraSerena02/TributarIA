@@ -41,15 +41,13 @@ import com.example.tributaria.features.login.viewmodel.LoginViewModel
 
 
 @Composable
-fun CommentItem(comment: Comment, likesViewModel: LikesViewModel) {
+fun CommentItem(comment: Comment) {
     val viewModel: CommentViewModel = viewModel()
     val loginViewModel: LoginViewModel = viewModel()
     val currentUserId = loginViewModel.currentUserId
     var isEditing by remember { mutableStateOf(false) }
     var editedComment by remember { mutableStateOf(comment.body) }
     val isOwner = comment.authorId == currentUserId
-    val likedComments by likesViewModel.likedComments.collectAsState()
-    val isLiked = likedComments.contains(comment.id)
 
     Card(
         modifier = Modifier
