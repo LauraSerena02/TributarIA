@@ -28,9 +28,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tributaria.features.balancepoint.presentation.BalancePointScreen
-import com.example.tributaria.features.foro.model.ForoViewModel
+import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.AddPostScreen
 import com.example.tributaria.features.foro.presentation.ForoScreen
+import com.example.tributaria.features.foro.presentation.PostDetailScreen
 import com.example.tributaria.features.home.HomeScreen
 import com.example.tributaria.features.news.presentation.DetailsScreen
 import com.example.tributaria.features.news.presentation.NewsScreen
@@ -84,10 +85,24 @@ fun AppNavigator() {
         composable("balance_point") { BalancePointScreen(navController) }
         composable ("foro") {ForoScreen(navController)}
         composable("add_post") { AddPostScreen(navController = navController) }
+        composable("postDetail/{postId}") { backStackEntry ->
+            val postId = backStackEntry.arguments?.getString("postId")
+            if (postId == null) {
+                // Si no hay postId, muestra un error o fallback
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Error: No se pudo cargar el post")
+                }
+            } else {
+                PostDetailScreen(navController = navController, postId = postId)
+            }
+        }
         composable("add_post/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")
-            val foroViewModel: ForoViewModel = hiltViewModel()
-            val post = foroViewModel.getPostById(postId)
+            val postViewModel: postViewModel = hiltViewModel()
+            val post = postViewModel.getPostById(postId)
             if (postId != null && post == null) {
                 Box(
                     modifier = Modifier.fillMaxSize(),

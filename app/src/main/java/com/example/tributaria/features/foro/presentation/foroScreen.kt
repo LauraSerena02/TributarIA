@@ -34,13 +34,13 @@ import kotlinx.coroutines.launch
 import com.example.tributaria.BottomNavigationBar
 import com.example.tributaria.CommonTopBar
 import com.example.tributaria.CustomDrawer
-import com.example.tributaria.features.foro.model.ForoViewModel
+import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.components.MessageCard
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import com.example.tributaria.headers.HeaderForo
 
 @Composable
-fun ForoScreen(navController: NavHostController, viewModel: ForoViewModel = viewModel(), loginViewModel: LoginViewModel = viewModel()) {
+fun ForoScreen(navController: NavHostController, viewModel: postViewModel = viewModel(), loginViewModel: LoginViewModel = viewModel()) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val posts = viewModel.posts.collectAsState().value

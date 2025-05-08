@@ -1,5 +1,6 @@
 package com.example.tributaria.features.foro.model
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tributaria.features.foro.repository.Post
@@ -8,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ForoViewModel : ViewModel() {
+class postViewModel : ViewModel() {
 
     private val repository = PostRepository()
 
@@ -19,8 +20,16 @@ class ForoViewModel : ViewModel() {
     val error: StateFlow<String?> = _error
 
     init {
-        loadPosts()
+        observePosts()
     }
+
+    private fun observePosts() {
+        repository.observePosts { updatedPosts ->
+            _posts.value = updatedPosts
+
+        }
+    }
+
     fun getPostById(postId: String?): Post? {
         return _posts.value.find { it.id == postId }
     }
@@ -37,6 +46,7 @@ class ForoViewModel : ViewModel() {
             val result = repository.createPost(title, body, authorId, userName)
             result.onSuccess {
                 loadPosts()
+                observePosts()
             }.onFailure {
                 _error.value = it.localizedMessage
             }
@@ -46,6 +56,7 @@ class ForoViewModel : ViewModel() {
         viewModelScope.launch {
             repository.deletePost(postId)
             loadPosts()
+            observePosts()
         }
     }
 
@@ -53,6 +64,7 @@ class ForoViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 repository.updatePost(postId, title, body)
+                observePosts()
             } catch (e: Exception) {
                 // Manejar error (por ejemplo, mostrar Toast o Snackbar)
             }
