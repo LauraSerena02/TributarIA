@@ -19,7 +19,7 @@ import com.example.tributaria.features.foro.repository.Post
 
 @Composable
 fun PostOptionsMenu(
-    post: Post,
+    post: Post?,
     currentUserId: String,
     navController: NavHostController,
     onDelete: (String) -> Unit
@@ -43,7 +43,7 @@ fun PostOptionsMenu(
                 }
             )
 
-            if (post.authorId == currentUserId) {
+            if (post!!.authorId == currentUserId) {
                 DropdownMenuItem(
                     text = { Text("Eliminar", color = Color.Red) },
                     onClick = {
