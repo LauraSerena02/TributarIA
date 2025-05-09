@@ -19,6 +19,7 @@ import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.material3.*
 import androidx.compose.material3.Card
@@ -63,6 +64,7 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
     val repository = commentsRepository()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    var isLiked by remember { mutableStateOf(false) }
     val username by loginViewModel.userName.collectAsState(initial = "")
 
     LaunchedEffect(Unit) {
@@ -120,19 +122,13 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                 Spacer(modifier = Modifier.width(1.dp))
                 Text( post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis )
                 Spacer(modifier = Modifier.width(16.dp))
-                IconButton(onClick = { /*Add action*/ }) {
-                    Icon(Icons.Default.AddReaction, contentDescription = "likes", modifier = Modifier.size(18.dp), tint = Color.Gray)
+                IconButton(onClick = { isLiked = !isLiked})
+                {    Icon(  imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isLiked) "Unlike Post" else "Like Post",
+                            tint = if (isLiked) Color.Red else Color.Gray    )
                 }
                 Spacer(modifier = Modifier.width(1.dp))
                 Text( post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                IconButton(onClick = {
-                }) {
-                    Icon(
-                        imageVector = Icons.Default.Favorite,
-                        contentDescription = "Like Post",
-                        tint = Color.Red
-                    )
-                }
             }
             if (showInput) {
                 Row(
@@ -158,7 +154,7 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                         onClick = {
                             scope.launch {
                             if (commentText.isNotBlank()) {
-                                val result = repository.addCommentToPost(post.id, commentText, post.authorId, username)
+                                val result = repository.addCommentToPost(post.id, commentText, currentUserId, username)
                                 if (result.isSuccess) {
                                     commentText = ""
                                     showInput = false

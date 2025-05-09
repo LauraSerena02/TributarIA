@@ -2,7 +2,6 @@ package com.example.tributaria.features.foro.presentation
 
 import android.widget.Toast
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -13,8 +12,8 @@ import androidx.compose.material.icons.filled.AddComment
 import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowCircleUp
-import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,7 +32,6 @@ import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.components.CommentItem
 import com.example.tributaria.features.foro.presentation.components.PostOptionsMenu
 import com.example.tributaria.features.foro.presentation.utils.formatTimestamp
-import com.example.tributaria.features.foro.repository.Comment
 import com.example.tributaria.features.foro.repository.commentsRepository
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
@@ -54,6 +52,7 @@ fun PostDetailScreen(
     val comments = viewModelComment.comments.collectAsState().value
     val currentUserId = loginViewModel.currentUserId
     val username by loginViewModel.userName.collectAsState(initial = "")
+    var isLiked by remember { mutableStateOf(false) }
     LaunchedEffect(postId) {
         loginViewModel.checkUserSession()
         viewModel.getPostById(postId)
@@ -135,8 +134,10 @@ fun PostDetailScreen(
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
                         Spacer(modifier = Modifier.width(16.dp))
-                        IconButton(onClick = { }) {
-                            Icon(Icons.Default.AddReaction, contentDescription = "likes", modifier = Modifier.size(18.dp), tint = Color.Gray)
+                        IconButton(onClick = { isLiked = !isLiked})
+                        {    Icon(  imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                            contentDescription = if (isLiked) "Unlike Post" else "Like Post",
+                            tint = if (isLiked) Color.Red else Color.Gray    )
                         }
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -166,7 +167,8 @@ fun PostDetailScreen(
                                 onClick = {
                                     scope.launch {
                                         if (commentText.isNotBlank()) {
-                                            val result = repository.addCommentToPost(postId, commentText, post.authorId, username)
+                                            val result = repository.addCommentToPost(postId, commentText,
+                                                currentUserId.toString(), username)
                                             if (result.isSuccess) {
                                                 commentText = ""
                                                 showInput = false
