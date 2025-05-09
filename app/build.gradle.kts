@@ -138,6 +138,14 @@ dependencies {
     implementation("com.patrykandpatrick.vico:core:1.13.0")
     implementation("com.patrykandpatrick.vico:compose:1.13.0")
     implementation("com.patrykandpatrick.vico:compose-m3:1.13.0")
+    //Generative IA
+    implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
+
+    
+
+    implementation("io.coil-kt:coil-compose:2.4.0")
+
+
 
 
 }

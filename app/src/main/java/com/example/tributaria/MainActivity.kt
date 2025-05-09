@@ -14,6 +14,7 @@ import com.example.tributaria.features.login.presentation.LoginScreen
 import com.example.tributaria.features.register.presentation.CreateScreen
 import com.example.tributaria.features.success.presentation.SuccessScreen
 import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
+import com.example.tributaria.features.geminichatbot.presentation.ChatScreen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -82,6 +83,7 @@ fun AppNavigator() {
         composable("news") { NewsScreen(navController) }
         composable("van_tir") { VanTirCalculatorScreen(navController) }
         composable("balance_point") { BalancePointScreen(navController) }
+        composable("gemini_ia") { ChatScreen(navController) }
         composable ("foro") {ForoScreen(navController)}
         composable("add_post") { AddPostScreen(navController = navController) }
         composable("add_post/{postId}") { backStackEntry ->
