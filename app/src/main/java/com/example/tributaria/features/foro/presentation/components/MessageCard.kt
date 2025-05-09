@@ -43,6 +43,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.model.LikesViewModel
@@ -56,7 +57,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController, loginViewModel: LoginViewModel = viewModel(), viewModel: postViewModel = viewModel()) {
+fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController,loginViewModel: LoginViewModel = hiltViewModel(), viewModel: postViewModel = viewModel()) {
     var showInput by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
     val repository = commentsRepository()

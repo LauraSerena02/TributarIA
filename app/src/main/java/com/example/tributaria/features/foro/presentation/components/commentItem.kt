@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tributaria.features.foro.model.CommentViewModel
 import com.example.tributaria.features.foro.model.LikesViewModel
@@ -43,7 +44,7 @@ import com.example.tributaria.features.login.viewmodel.LoginViewModel
 @Composable
 fun CommentItem(comment: Comment) {
     val viewModel: CommentViewModel = viewModel()
-    val loginViewModel: LoginViewModel = viewModel()
+    val loginViewModel: LoginViewModel = hiltViewModel()
     val currentUserId = loginViewModel.currentUserId
     var isEditing by remember { mutableStateOf(false) }
     var editedComment by remember { mutableStateOf(comment.body) }

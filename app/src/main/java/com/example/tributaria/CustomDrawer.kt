@@ -47,9 +47,7 @@ import androidx.compose.runtime.getValue
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import androidx.compose.runtime.*
 import androidx.compose.ui.unit.TextUnit
-
-
-
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
@@ -57,7 +55,7 @@ fun CustomDrawer(
     navController: NavController,
     onLogout: () -> Unit
 ) {
-    val loginViewModel: LoginViewModel = viewModel()
+    val loginViewModel: LoginViewModel = hiltViewModel()
 
 
     // Estado para controlar la visibilidad de los mini botones

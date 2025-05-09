@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -40,7 +41,7 @@ import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import com.example.tributaria.headers.HeaderForo
 
 @Composable
-fun ForoScreen(navController: NavHostController, viewModel: postViewModel = viewModel(), loginViewModel: LoginViewModel = viewModel()) {
+fun ForoScreen(navController: NavHostController, viewModel: postViewModel = viewModel(), loginViewModel: LoginViewModel = hiltViewModel()) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val posts = viewModel.posts.collectAsState().value

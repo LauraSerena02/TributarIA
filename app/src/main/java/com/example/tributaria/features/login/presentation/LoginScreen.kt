@@ -1,6 +1,8 @@
 // Importa las librerías necesarias para Composables, UI y la interacción con el ViewModel
 package com.example.tributaria.features.login.presentation
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -28,23 +31,35 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.R
+import com.example.tributaria.features.login.repository.AuthRepository
 import com.example.tributaria.features.login.viewmodel.LoginState
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
+import com.google.firebase.firestore.FirebaseFirestore
 
 
 // Define la pantalla de inicio de sesión. Recibe el navController para la navegación y el LoginViewModel.
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    viewModel: LoginViewModel = viewModel()
+    viewModel: LoginViewModel = hiltViewModel()  // <- Cambio aquí
 ) {
+
+
     val loginState by viewModel.loginState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // Añade este estado para el launcher de Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result.data)
+    }
 
     LaunchedEffect(Unit) {
         viewModel.checkUserSession()
@@ -195,6 +210,31 @@ fun LoginScreen(
                 }
             }
 
+            // Botón Login con Google
+            OutlinedButton(
+                onClick = {
+                    viewModel.loginWithGoogle(googleSignInLauncher)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFFDB4437) // Color de Google
+                )
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_google),
+                        contentDescription = "Google Logo",
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Continuar con Google", color = Color.Black)
+                }
+            }
             // Botón Crear Cuenta
             Button(
                 onClick = { navController.navigate("register") },

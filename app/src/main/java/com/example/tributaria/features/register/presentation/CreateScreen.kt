@@ -1,6 +1,9 @@
 package com.example.tributaria.features.register.presentation
 
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.runtime.*
 import androidx.compose.material3.*
 import androidx.compose.foundation.layout.*
@@ -13,18 +16,27 @@ import androidx.navigation.NavHostController
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tributaria.features.register.viewmodel.CreateAccountViewModel
 import androidx.compose.foundation.clickable
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.tributaria.R
 
 // Función composable principal que representa la pantalla de creación de cuenta
 @Composable
-fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewModel = viewModel()) {
+fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewModel = hiltViewModel()) {
     // Se suscribe al estado del ViewModel usando StateFlow
     val state by viewModel.state.collectAsState()
     // Controla la visibilidad del diálogo de términos
     var showTermsDialog by remember { mutableStateOf(false) }
 
+    // Configura el lanzador para el resultado de Google Sign-In
+    val googleSignInLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        viewModel.handleGoogleSignInResult(result.data)
+    }
     // Navegación automática al login si el registro fue exitoso
     if (state.success) {
         LaunchedEffect(Unit) {
@@ -65,6 +77,28 @@ fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewM
         )
 
         Spacer(modifier = Modifier.height(20.dp))
+        // Separador visual
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Divider(
+                modifier = Modifier.weight(1f),
+                color = Color.Gray
+            )
+            Text(
+                text = "O",
+                modifier = Modifier.padding(horizontal = 8.dp),
+                color = Color.Gray
+            )
+            Divider(
+                modifier = Modifier.weight(1f),
+                color = Color.Gray
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
 
         // Campo de nombre de usuario
         OutlinedTextField(
@@ -213,6 +247,33 @@ fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewM
         }
 
         Spacer(modifier = Modifier.height(10.dp))
+
+        // Nuevo: Botón para registro con Google
+        OutlinedButton(
+            onClick = {
+                viewModel.registerWithGoogle(googleSignInLauncher)
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            colors = ButtonDefaults.outlinedButtonColors(
+                contentColor = Color(0xFFDB4437) // Color de Google
+            )
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_google),
+                    contentDescription = "Google Logo",
+                    modifier = Modifier.size(24.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Continuar con Google", color = Color.Black)
+            }
+        }
+        Spacer(modifier = Modifier.height(16.dp))
 
         // Botón para volver a la pantalla de login
         OutlinedButton(

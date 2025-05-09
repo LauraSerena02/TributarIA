@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.model.CommentViewModel
@@ -41,7 +42,7 @@ import kotlinx.coroutines.launch
 fun PostDetailScreen(
     navController: NavHostController,
     postId: String,
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
     viewModel: postViewModel = viewModel(),
     viewModelComment: CommentViewModel = viewModel(),
 ) {

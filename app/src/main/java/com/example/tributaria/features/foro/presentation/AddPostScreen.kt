@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.model.postViewModel
@@ -43,7 +44,7 @@ import com.example.tributaria.features.login.viewmodel.LoginViewModel
 fun AddPostScreen(
     navController: NavHostController,
     viewModel: postViewModel = viewModel(),
-    loginViewModel: LoginViewModel = viewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel(),
     postToEdit: Post? = null
 ) {
     var title by remember { mutableStateOf("") }

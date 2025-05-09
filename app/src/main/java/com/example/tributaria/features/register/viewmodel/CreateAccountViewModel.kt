@@ -1,5 +1,7 @@
 package com.example.tributaria.features.register.viewmodel
 
+import android.content.Intent
+import androidx.activity.result.ActivityResultLauncher
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -8,35 +10,33 @@ import kotlinx.coroutines.launch
 import android.util.Patterns
 import com.example.tributaria.features.register.respository.UserRepository
 import android.util.Log
+import com.google.android.gms.auth.api.signin.GoogleSignInClient
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-// ViewModel responsable de manejar el estado y la lógica de la pantalla de creación de cuenta
-class CreateAccountViewModel : ViewModel() {
+@HiltViewModel
+class CreateAccountViewModel @Inject constructor(
+    private val repository: UserRepository
+) : ViewModel() {
 
-    // Estado mutable interno que contiene todos los datos del formulario
     private val _state = MutableStateFlow(CreateAccountState())
-
-    // Exposición pública del estado como solo lectura (para que la UI lo observe sin modificarlo)
     val state: StateFlow<CreateAccountState> = _state
 
-    // Actualiza el campo de nombre de usuario en el estado
     fun onUsernameChange(value: String) {
         _state.value = _state.value.copy(username = value)
     }
 
-    // Actualiza el correo electrónico y su validez
     fun onEmailChange(value: String) {
         _state.value = _state.value.copy(
             email = value,
-            isEmailValid = Patterns.EMAIL_ADDRESS.matcher(value).matches() // Valida el formato del email
+            isEmailValid = Patterns.EMAIL_ADDRESS.matcher(value).matches()
         )
     }
 
-    // Actualiza la contraseña ingresada
     fun onPasswordChange(value: String) {
         _state.value = _state.value.copy(password = value)
     }
 
-    // Actualiza la confirmación de la contraseña y verifica si coincide con la anterior
     fun onConfirmPasswordChange(value: String) {
         _state.value = _state.value.copy(
             confirmPassword = value,
@@ -44,38 +44,28 @@ class CreateAccountViewModel : ViewModel() {
         )
     }
 
-    // Actualiza si el usuario ha aceptado los términos y condiciones
     fun onTermsAcceptedChange(value: Boolean) {
         _state.value = _state.value.copy(termsAccepted = value)
     }
 
-    // Lógica para registrar al usuario
     fun register() {
         val current = _state.value
 
-        Log.d("CreateAccountViewModel", "tu eres: ${current.username}")
-
-        // Validaciones básicas antes de intentar registrar
         if (
-            !current.termsAccepted || // Si no aceptó los términos
-            current.username.isBlank() || // Si el nombre de usuario está vacío
-            !current.isEmailValid || // Si el email no es válido
-            current.passwordMismatch // Si las contraseñas no coinciden
+            !current.termsAccepted ||
+            current.username.isBlank() ||
+            !current.isEmailValid ||
+            current.passwordMismatch
         ) return
 
-        // Indica que se está procesando el registro y limpia errores anteriores
         _state.value = current.copy(isLoading = true, error = null)
 
-        // Inicia una corrutina para manejar la operación asincrónica
         viewModelScope.launch {
-            // Llama al repositorio para registrar al usuario en Firebase
-            val result = UserRepository().registerUser(current.username, current.email, current.password)
+            val result = repository.registerUser(current.username, current.email, current.password)
 
-            // Si la operación fue exitosa, actualiza el estado como exitoso
             if (result.isSuccess) {
                 _state.value = _state.value.copy(success = true, isLoading = false)
             } else {
-                // Si hubo un error, lo almacena en el estado
                 _state.value = _state.value.copy(
                     error = result.exceptionOrNull()?.message,
                     isLoading = false
@@ -84,7 +74,37 @@ class CreateAccountViewModel : ViewModel() {
         }
     }
 
-    // Restablece el indicador de éxito (por ejemplo, después de navegar a otra pantalla)
+    fun getGoogleSignInClient(): GoogleSignInClient {
+        return repository.getGoogleSignInClient()
+    }
+
+    fun registerWithGoogle(resultLauncher: ActivityResultLauncher<Intent>) {
+        val signInClient = getGoogleSignInClient()
+        signInClient.signOut() // Limpiar sesión previa
+        resultLauncher.launch(signInClient.signInIntent)
+    }
+
+    fun handleGoogleSignInResult(data: Intent?) {
+        _state.value = _state.value.copy(isLoading = true, error = null)
+
+        viewModelScope.launch {
+            val result = repository.handleGoogleSignInResult(data)
+
+            if (result.isSuccess) {
+                _state.value = _state.value.copy(
+                    success = true,
+                    isLoading = false,
+                    username = result.getOrNull()?.username ?: ""
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    error = result.exceptionOrNull()?.message ?: "Error desconocido",
+                    isLoading = false
+                )
+            }
+        }
+    }
+
     fun resetSuccess() {
         _state.value = _state.value.copy(success = false)
     }
