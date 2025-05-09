@@ -1,5 +1,6 @@
 package com.example.tributaria
 
+
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -16,6 +17,7 @@ import com.example.tributaria.features.success.presentation.SuccessScreen
 import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 import com.example.tributaria.features.geminichatbot.presentation.ChatScreen
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -39,6 +41,7 @@ import com.example.tributaria.features.news.presentation.NewsScreen
 import dagger.hilt.android.AndroidEntryPoint
 
 
+
 object Destinations {
     const val LIST_SCREEN = "LIST_SCREEN"
     const val DETAILS_SCREEN = "DETAILS_SCREEN"
@@ -60,16 +63,33 @@ fun AppNavigator() {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
+    val activity = LocalActivity.current
 
-
-    if (currentRoute != "success" && currentRoute != "login") {
-        BackHandler {
-            navController.navigate("success") {
-                popUpTo("success") { inclusive = true }
-                launchSingleTop = true
+    BackHandler(enabled = true) {
+        when (currentRoute) {
+            "register", "recover" -> {
+                navController.navigate("login") {
+                    popUpTo("login") { inclusive = false }
+                }
+            }
+            "HomeScreen" -> {
+                activity?.finish()
+            }
+            "login" -> {
+                navController.navigate("HomeScreen") {
+                    popUpTo("login") { inclusive = true }
+                    launchSingleTop = true
+                }
+            }
+            else -> {
+                navController.navigate("success") {
+                    popUpTo("success") { inclusive = true }
+                    launchSingleTop = true
+                }
             }
         }
     }
+
 
     NavHost(
         navController = navController,
