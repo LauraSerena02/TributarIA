@@ -38,6 +38,10 @@ import com.example.tributaria.features.foro.presentation.PostDetailScreen
 import com.example.tributaria.features.home.HomeScreen
 import com.example.tributaria.features.news.presentation.DetailsScreen
 import com.example.tributaria.features.news.presentation.NewsScreen
+import com.example.tributaria.features.moneylend.presentation.MoneyLendScreen
+
+
+
 import dagger.hilt.android.AndroidEntryPoint
 
 
@@ -106,6 +110,7 @@ fun AppNavigator() {
         composable("balance_point") { BalancePointScreen(navController) }
         composable("gemini_ia") { ChatScreen(navController) }
         composable ("foro") {ForoScreen(navController)}
+        composable ("moneylend") {MoneyLendScreen(navController)}
         composable("add_post") { AddPostScreen(navController = navController) }
         composable("postDetail/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")

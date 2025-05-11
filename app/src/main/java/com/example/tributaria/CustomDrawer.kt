@@ -146,7 +146,7 @@ fun CustomDrawer(
 
                 // Préstamos Bancarios con tamaño de texto más pequeño
                 DrawerButtonWithCustomFont("Préstamos Bancarios", Icons.Default.Payments, fontSize = 14.sp) {
-                    navController.navigate("amortization_calculation") {
+                    navController.navigate("moneylend") {
                         popUpTo("success") { inclusive = true }
                         launchSingleTop = true }
                 }
