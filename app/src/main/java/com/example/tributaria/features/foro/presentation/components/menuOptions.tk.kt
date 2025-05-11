@@ -1,5 +1,6 @@
 package com.example.tributaria.features.foro.presentation.components
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
@@ -14,17 +15,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.repository.Post
 
 @Composable
 fun PostOptionsMenu(
     post: Post?,
-    currentUserId: String,
     navController: NavHostController,
     onDelete: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Box {
         IconButton(onClick = { expanded = true }) {
@@ -36,29 +38,22 @@ fun PostOptionsMenu(
             onDismissRequest = { expanded = false }
         ) {
             DropdownMenuItem(
-                text = { Text("Marcar como favorito") },
+                text = { Text("Eliminar", color = Color.Red) },
                 onClick = {
-                    // Acción marcar favorito
+                    onDelete(post!!.id)
+                    Toast.makeText(context, "Publicación eliminada", Toast.LENGTH_SHORT).show()
                     expanded = false
-                }
-            )
-
-            if (post!!.authorId == currentUserId) {
-                DropdownMenuItem(
-                    text = { Text("Eliminar", color = Color.Red) },
-                    onClick = {
-                        onDelete(post.id)
-                        expanded = false
                     }
+
                 )
                 DropdownMenuItem(
                     text = { Text("Editar", color = Color.Blue) },
                     onClick = {
-                        navController.navigate("add_post/${post.id}")
+                        navController.navigate("add_post/${post!!.id}")
                         expanded = false
                     }
                 )
-            }
+
         }
     }
 }

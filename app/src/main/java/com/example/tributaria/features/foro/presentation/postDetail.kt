@@ -9,13 +9,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddComment
-import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -27,12 +28,12 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.tributaria.features.foro.model.CommentViewModel
+import com.example.tributaria.features.foro.model.commentViewModel
 import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.components.CommentItem
 import com.example.tributaria.features.foro.presentation.components.PostOptionsMenu
 import com.example.tributaria.features.foro.presentation.utils.formatTimestamp
-import com.example.tributaria.features.foro.repository.commentsRepository
+import com.example.tributaria.features.foro.repository.LikesRepository
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
@@ -42,17 +43,26 @@ fun PostDetailScreen(
     postId: String,
     loginViewModel: LoginViewModel = hiltViewModel(),
     viewModel: postViewModel = viewModel(),
-    viewModelComment: CommentViewModel = viewModel(),
+    viewModelComment: commentViewModel = viewModel(),
 ) {
     var showInput by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
     val context = LocalContext.current
+    val commentViewModel : commentViewModel = viewModel()
     val scope = rememberCoroutineScope()
-    val repository = commentsRepository()
+    val repositoryLike = LikesRepository()
     val comments = viewModelComment.comments.collectAsState().value
     val currentUserId = loginViewModel.currentUserId
     val username by loginViewModel.userName.collectAsState(initial = "")
     var isLiked by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        loginViewModel.checkUserSession()
+    }
+
+    LaunchedEffect(postId, currentUserId) {
+        isLiked = repositoryLike.hasUserLikedPost(postId, currentUserId.toString())
+    }
     LaunchedEffect(postId) {
         loginViewModel.checkUserSession()
         viewModel.getPostById(postId)
@@ -71,7 +81,6 @@ fun PostDetailScreen(
             modifier = Modifier
             .fillMaxSize()
         ) {
-            // Encabezado fijo
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -111,13 +120,14 @@ fun PostDetailScreen(
                                 Text(formatTimestamp(post.timestamp), style = MaterialTheme.typography.bodySmall)
                             }
                         }
-                        Box(modifier = Modifier.padding(8.dp)) {
-                            PostOptionsMenu(
-                                post = post,
-                                currentUserId = currentUserId.toString(),
-                                navController = navController,
-                                onDelete = { postId: String -> viewModel.deletePost(postId)  }
-                            )
+                        if (post.authorId == currentUserId) {
+                            Box(modifier = Modifier.padding(8.dp)) {
+                                PostOptionsMenu(
+                                    post = post,
+                                    navController = navController,
+                                    onDelete = { postId: String -> viewModel.deletePost(postId)  }
+                                )
+                            }
                         }
                     }
 
@@ -134,10 +144,21 @@ fun PostDetailScreen(
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
                         Spacer(modifier = Modifier.width(16.dp))
-                        IconButton(onClick = { isLiked = !isLiked})
-                        {    Icon(  imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = if (isLiked) "Unlike Post" else "Like Post",
-                            tint = if (isLiked) Color.Red else Color.Gray    )
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    repositoryLike.toggleLikeOnPost(post.id,
+                                        currentUserId.toString()
+                                    )
+                                    isLiked = !isLiked
+                                }
+                            }
+                        ) {
+                            Icon(
+                                imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = if (isLiked) "Unlike Post" else "Like Post",
+                                tint = if (isLiked) Color.Blue else Color.Gray
+                            )
                         }
                         Spacer(modifier = Modifier.width(1.dp))
                         Text(post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -167,16 +188,10 @@ fun PostDetailScreen(
                                 onClick = {
                                     scope.launch {
                                         if (commentText.isNotBlank()) {
-                                            val result = repository.addCommentToPost(postId, commentText,
+                                            commentViewModel.createComment(postId, commentText,
                                                 currentUserId.toString(), username)
-                                            if (result.isSuccess) {
-                                                commentText = ""
-                                                showInput = false
-                                                viewModelComment.loadComments(postId)
-                                                Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
-                                            } else {
-                                                Toast.makeText(context, "Error al comentar", Toast.LENGTH_SHORT).show()
-                                            }
+                                            showInput = false
+                                            Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
                                         }
                                     }
                                 }
@@ -188,8 +203,6 @@ fun PostDetailScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             Column(modifier = Modifier.padding(16.dp)) {
                 Text("Comentarios", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                 Spacer(modifier = Modifier.height(8.dp))
@@ -200,7 +213,7 @@ fun PostDetailScreen(
                 ) {
                     LazyColumn {
                         items(comments) { comment ->
-                            CommentItem(comment)
+                            CommentItem(comment, postId)
                         }
                     }
                 }

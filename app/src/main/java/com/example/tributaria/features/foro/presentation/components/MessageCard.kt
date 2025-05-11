@@ -1,5 +1,6 @@
 package com.example.tributaria.features.foro.presentation.components
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +17,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddComment
-import androidx.compose.material.icons.filled.AddReaction
 import androidx.compose.material.icons.filled.ArrowCircleUp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -36,6 +36,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,30 +46,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import com.example.tributaria.features.foro.model.LikesViewModel
+import com.example.tributaria.features.foro.model.commentViewModel
+import com.example.tributaria.features.foro.model.likesViewModel
 import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.utils.formatTimestamp
-import com.example.tributaria.features.foro.repository.LikesRepository
 import com.example.tributaria.features.foro.repository.Post
-import com.example.tributaria.features.foro.repository.commentsRepository
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import kotlinx.coroutines.launch
 
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController,loginViewModel: LoginViewModel = hiltViewModel(), viewModel: postViewModel = viewModel()) {
     var showInput by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
-    val repository = commentsRepository()
+    val commentViewModel : commentViewModel = viewModel()
+    val likesViewModel : likesViewModel = viewModel()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    var isLiked by remember { mutableStateOf(false) }
+    var isLiked by rememberSaveable { mutableStateOf(false) }
     val username by loginViewModel.userName.collectAsState(initial = "")
 
     LaunchedEffect(Unit) {
         loginViewModel.checkUserSession()
+    }
+
+    LaunchedEffect(post.id, currentUserId) {
+        isLiked = likesViewModel.loadReactionPost(post.id, currentUserId)
     }
 
     Card(
@@ -100,15 +105,17 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                         )
                     }
                 }
-                Box(modifier = Modifier
-                    .padding(8.dp)) {
-                    PostOptionsMenu(
-                        post = post,
-                        currentUserId = currentUserId,
-                        navController = navController,
-                        onDelete = onDelete
-                    )
+                if (post.authorId == currentUserId) {
+                    Box(modifier = Modifier
+                        .padding(8.dp)) {
+                        PostOptionsMenu(
+                            post = post,
+                            navController = navController,
+                            onDelete = onDelete
+                        )
+                    }
                 }
+
             }
             Spacer(modifier = Modifier.height(4.dp))
             Text(post.body.toString(), maxLines = 5, overflow = TextOverflow.Ellipsis )
@@ -122,10 +129,19 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                 Spacer(modifier = Modifier.width(1.dp))
                 Text( post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis )
                 Spacer(modifier = Modifier.width(16.dp))
-                IconButton(onClick = { isLiked = !isLiked})
-                {    Icon(  imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                            contentDescription = if (isLiked) "Unlike Post" else "Like Post",
-                            tint = if (isLiked) Color.Red else Color.Gray    )
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            likesViewModel.reactionPost(post.id, currentUserId)
+                            isLiked = !isLiked
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                        contentDescription = if (isLiked) "Unlike Post" else "Like Post",
+                        tint = if (isLiked) Color.Blue else Color.Gray
+                    )
                 }
                 Spacer(modifier = Modifier.width(1.dp))
                 Text( post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
@@ -153,18 +169,13 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                     IconButton(
                         onClick = {
                             scope.launch {
-                            if (commentText.isNotBlank()) {
-                                val result = repository.addCommentToPost(post.id, commentText, currentUserId, username)
-                                if (result.isSuccess) {
-                                    commentText = ""
+                                if (commentText.isNotBlank()) {
+                                    commentViewModel.createComment(post.id, commentText,
+                                        currentUserId.toString(), username)
                                     showInput = false
-                                    viewModel.loadPosts()
                                     Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
-                                } else {
-                                    Toast.makeText(context, "Error al comentar", Toast.LENGTH_SHORT).show()
                                 }
-                            }
-                        }
+                           }
 
                         }
                     ) {

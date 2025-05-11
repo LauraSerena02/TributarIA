@@ -12,6 +12,7 @@ data class Comment(
     val authorId: String = "",
     val postId: String = "",
     val userName: String = "",
+    val totalLikes: Int = 0,
     val timestamp: Timestamp = Timestamp.now()
 )
 
@@ -56,6 +57,7 @@ class commentsRepository {
                     body = doc.getString("body") ?: "",
                     authorId = doc.getString("authorId") ?: "",
                     postId = doc.getString("postId") ?: "",
+                    totalLikes = (doc.getLong("totalLikes") ?: 0L).toInt(),
                     userName = doc.getString("userName") ?: "",
                     timestamp = doc.getTimestamp("timestamp") ?: Timestamp.now()
                 )

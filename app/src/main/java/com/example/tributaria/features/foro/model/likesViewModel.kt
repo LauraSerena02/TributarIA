@@ -1,34 +1,56 @@
 package com.example.tributaria.features.foro.model
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.tributaria.features.foro.repository.Comment
 import com.example.tributaria.features.foro.repository.LikesRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
-class LikesViewModel(private val likesRepository: LikesRepository) : ViewModel() {
-    private val _likedPosts = MutableStateFlow<Set<String>>(emptySet())
-    val likedPosts: StateFlow<Set<String>> = _likedPosts
+class likesViewModel : ViewModel() {
 
-    private val _likedComments = MutableStateFlow<Set<String>>(emptySet())
-    val likedComments: StateFlow<Set<String>> = _likedComments
+    private val repository = LikesRepository()
+    private val _comments = MutableStateFlow<List<Comment>>(emptyList())
+    val comments: StateFlow<List<Comment>> = _comments
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+    private val _Likes = MutableStateFlow(false)
 
-    suspend fun addLikeToPost(postId: String) {
-        _likedPosts.value = _likedPosts.value + postId
-        likesRepository.addPostLike(postId)
+    suspend fun loadReactionComment(commentId: String, userId: String): Boolean {
+        return try {
+            repository.hasUserLikedComment(commentId, userId)
+        } catch (e: Exception) {
+            _error.value = e.localizedMessage ?: "Error al verificar reacción"
+            false
+        }
     }
 
-    suspend fun removeLikeFromPost(postId: String) {
-        _likedPosts.value = _likedPosts.value - postId
-        likesRepository.removePostLike(postId)
+    suspend fun loadReactionPost(postId: String, userId: String): Boolean {
+        return try {
+            repository.hasUserLikedPost(postId, userId)
+        } catch (e: Exception) {
+            _error.value = e.localizedMessage ?: "Error al verificar reacción"
+            false
+        }
     }
 
-    suspend fun addLikeToComment(commentId: String) {
-        _likedComments.value = _likedComments.value + commentId
-        likesRepository.addCommentLike(commentId)
+    fun reactionPost(postId: String, currentUserId: String) {
+        viewModelScope.launch {
+            val result = repository.toggleLikeOnPost(postId, currentUserId)
+            result.onFailure {
+                _error.value = it.localizedMessage ?: "Error al actualizar la reacción"
+            }
+        }
     }
 
-    suspend fun removeLikeFromComment(commentId: String) {
-        _likedComments.value = _likedComments.value - commentId
-        likesRepository.removeCommentLike(commentId)
+    fun reactionComment(commentId: String, currentUserId: String) {
+        viewModelScope.launch {
+            val result = repository.toggleLikeOnComment(commentId, currentUserId)
+            result.onFailure {
+                _error.value = it.localizedMessage ?: "Error al actualizar la reacción"
+            }
+        }
     }
 }
+

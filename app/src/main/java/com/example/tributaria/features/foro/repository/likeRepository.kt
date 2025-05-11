@@ -1,5 +1,6 @@
 package com.example.tributaria.features.foro.repository
 
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 
@@ -7,60 +8,103 @@ class LikesRepository {
 
     private val db = FirebaseFirestore.getInstance()
 
-    suspend fun getLikedPosts(): Set<String> {
-        val userId = "userId"
-        val likesSnapshot = db.collection("likesPosts")
-            .document(userId)
+    suspend fun hasUserLikedPost(postId: String, userId: String): Boolean {
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("likesPosts")
+            .whereEqualTo("postId", postId)
+            .whereEqualTo("authorId", userId)
             .get()
             .await()
 
-        return likesSnapshot.data?.keys?.toSet() ?: emptySet()
+        return !snapshot.isEmpty
     }
 
-    // Obtener los "likes" de los comentarios del usuario
-    suspend fun getLikedComments(): Set<String> {
-        val userId = "userId"  // Aquí debes obtener el ID del usuario actual
-        val likesSnapshot = db.collection("likesComments")
-            .document(userId)
+    suspend fun hasUserLikedComment(commentId: String, userId: String): Boolean {
+        val snapshot = FirebaseFirestore.getInstance()
+            .collection("likesComments")
+            .whereEqualTo("idComment", commentId)
+            .whereEqualTo("authorId", userId)
             .get()
             .await()
 
-        return likesSnapshot.data?.keys?.toSet() ?: emptySet()
+        return !snapshot.isEmpty
     }
 
-    // Agregar un like al post
-    suspend fun addPostLike(postId: String) {
-        val userId = "userId"  // Aquí debes obtener el ID del usuario actual
-        db.collection("likesPosts")
-            .document(userId)
-            .update(postId, true)
-            .await()
+    suspend fun toggleLikeOnPost(postId: String, currentUserId: String): Result<Unit> {
+        return try {
+            val likeSnapshot = db.collection("likesPosts")
+                .whereEqualTo("authorId", currentUserId)
+                .whereEqualTo("postId", postId)
+                .get()
+                .await()
+
+            val isLiked = !likeSnapshot.isEmpty
+
+            if (isLiked) {
+                likeSnapshot.documents.forEach { it.reference.delete().await() }
+
+                db.collection("post")
+                    .document(postId)
+                    .update("totalLikes", FieldValue.increment(-1))
+                    .await()
+            } else {
+                val likeData = hashMapOf(
+                    "authorId" to currentUserId,
+                    "postId" to postId,
+                )
+
+                db.collection("likesPosts")
+                    .add(likeData)
+                    .await()
+
+                db.collection("post")
+                    .document(postId)
+                    .update("totalLikes", FieldValue.increment(1))
+                    .await()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    // Eliminar un like del post
-    suspend fun removePostLike(postId: String) {
-        val userId = "userId"  // Aquí debes obtener el ID del usuario actual
-        db.collection("likesPosts")
-            .document(userId)
-            .update(postId, null)
-            .await()
-    }
+    suspend fun toggleLikeOnComment(idComment: String, currentUserId: String): Result<Unit> {
+        return try {
+            val likeSnapshot = db.collection("likesComments")
+                .whereEqualTo("authorId", currentUserId)
+                .whereEqualTo("idComment", idComment)
+                .get()
+                .await()
 
-    // Agregar un like al comentario
-    suspend fun addCommentLike(commentId: String) {
-        val userId = "userId"  // Aquí debes obtener el ID del usuario actual
-        db.collection("likesComments")
-            .document(userId)
-            .update(commentId, true)
-            .await()
-    }
+            val isLiked = !likeSnapshot.isEmpty
 
-    // Eliminar un like del comentario
-    suspend fun removeCommentLike(commentId: String) {
-        val userId = "userId"  // Aquí debes obtener el ID del usuario actual
-        db.collection("likesComments")
-            .document(userId)
-            .update(commentId, null)
-            .await()
+            if (isLiked) {
+                likeSnapshot.documents.forEach { it.reference.delete().await() }
+
+                db.collection("comments")
+                    .document(idComment)
+                    .update("totalLikes", FieldValue.increment(-1))
+                    .await()
+            } else {
+                val likeData = hashMapOf(
+                    "authorId" to currentUserId,
+                    "idComment" to idComment
+                )
+
+                db.collection("likesComments")
+                    .add(likeData)
+                    .await()
+
+                db.collection("comments")
+                    .document(idComment)
+                    .update("totalLikes", FieldValue.increment(1))
+                    .await()
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 }

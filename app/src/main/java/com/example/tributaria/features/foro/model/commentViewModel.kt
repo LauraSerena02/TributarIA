@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-
-class CommentViewModel : ViewModel() {
+class commentViewModel : ViewModel() {
 
     private val repository = commentsRepository()
 
@@ -28,7 +27,7 @@ class CommentViewModel : ViewModel() {
         }
     }
 
-    fun addCommentToPost(postId: String, body: String, authorId: String, userName: String) {
+    fun createComment(postId: String, body: String, authorId: String, userName: String) {
         viewModelScope.launch {
             val result = repository.addCommentToPost(postId, body, authorId, userName)
             result.onSuccess {
@@ -61,4 +60,6 @@ class CommentViewModel : ViewModel() {
             }
         }
     }
+
 }
+
