@@ -4,25 +4,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.collectAsState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddBox
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,12 +34,23 @@ import com.example.tributaria.features.login.viewmodel.LoginViewModel
 import com.example.tributaria.headers.HeaderForo
 
 @Composable
-fun ForoScreen(navController: NavHostController, viewModel: postViewModel = viewModel(), loginViewModel: LoginViewModel = hiltViewModel()) {
+fun ForoScreen(
+    navController: NavHostController,
+    viewModel: postViewModel = viewModel(),
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val posts = viewModel.posts.collectAsState().value
     val lifecycleOwner = LocalLifecycleOwner.current
     val currentUserId = loginViewModel.currentUserId
+    var searchQuery by remember { mutableStateOf("") }
+
+    val filteredPosts = posts.filter {
+        it.userName.contains(searchQuery, ignoreCase = true) ||
+                it.Title.contains(searchQuery, ignoreCase = true) ||
+                it.body.contains(searchQuery, ignoreCase = true)
+    }
 
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
@@ -54,9 +58,7 @@ fun ForoScreen(navController: NavHostController, viewModel: postViewModel = view
                 viewModel.loadPosts()
             }
         }
-
         lifecycleOwner.lifecycle.addObserver(observer)
-
         onDispose {
             lifecycleOwner.lifecycle.removeObserver(observer)
         }
@@ -84,56 +86,99 @@ fun ForoScreen(navController: NavHostController, viewModel: postViewModel = view
                 }
             }
         ) { paddingValues ->
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(48.dp)
                         .background(
-                            color = Color(0xFFF0F0F0), // Color gris claro
-                            shape = RoundedCornerShape(24.dp) // Bordes redondeados
+                            color = Color(0xFFF0F0F0),
+                            shape = RoundedCornerShape(24.dp)
                         )
-                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Search Icon",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "Search replies",
-                        color = Color.Gray,
-                        fontSize = 16.sp
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Icon(
-                        imageVector = Icons.Default.AccountCircle,
-                        contentDescription = "Profile",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(36.dp)
+                    OutlinedTextField(
+                        value = searchQuery,
+                        onValueChange = { searchQuery = it },
+                        placeholder = {
+                            Text(
+                                text = "Buscar por autor, título o contenido",
+                                color = Color.Gray,
+                                fontSize = 10.sp
+                            )
+                        },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Search Icon",
+                                tint = Color.Gray,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        },
+                        trailingIcon = {
+                            if (searchQuery.isNotEmpty()) {
+                                IconButton(onClick = { searchQuery = "" }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = "Clear Search",
+                                        tint = Color.Gray
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = "Profile",
+                                    tint = Color.Gray,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                        },
+                        shape = RoundedCornerShape(24.dp),
+                        singleLine = true,
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.Transparent,
+                            unfocusedBorderColor = Color.Transparent,
+                            focusedContainerColor = Color(0xFFF0F0F0),
+                            unfocusedContainerColor = Color(0xFFF0F0F0),
+                            cursorColor = Color.Gray
+                        ),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .padding(horizontal = 16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.height(16.dp))
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(posts) { post ->
-                        MessageCard(
-                            post = post,
-                            currentUserId = currentUserId.toString(),
-                            navController = navController,
-                            onDelete = { postId: String -> viewModel.deletePost(postId) }
-                        )
-                    }
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                if (filteredPosts.isEmpty()) {
+                    Text(
+                        text = "No se encontraron publicaciones",
+                        color = Color.Blue,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+                } else {
+                    LazyColumn(modifier = Modifier.fillMaxSize()) {
+                        items(filteredPosts) { post ->
+                            MessageCard(
+                                post = post,
+                                currentUserId = currentUserId.toString(),
+                                navController = navController,
+                                onDelete = { postId: String -> viewModel.deletePost(postId) },
+                                highlightQuery = searchQuery
+                            )
+                        }
+                    }
                 }
             }
         }

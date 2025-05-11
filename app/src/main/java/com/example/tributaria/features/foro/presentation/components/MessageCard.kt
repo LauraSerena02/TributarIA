@@ -50,6 +50,7 @@ import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.model.commentViewModel
 import com.example.tributaria.features.foro.model.likesViewModel
 import com.example.tributaria.features.foro.model.postViewModel
+import com.example.tributaria.features.foro.presentation.utils.HighlightedText
 import com.example.tributaria.features.foro.presentation.utils.formatTimestamp
 import com.example.tributaria.features.foro.repository.Post
 import com.example.tributaria.features.login.viewmodel.LoginViewModel
@@ -58,11 +59,19 @@ import kotlinx.coroutines.launch
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
-fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, navController: NavHostController,loginViewModel: LoginViewModel = hiltViewModel(), viewModel: postViewModel = viewModel()) {
+fun MessageCard(
+    post: Post,
+    currentUserId: String,
+    onDelete: (String) -> Unit,
+    navController: NavHostController,
+    loginViewModel: LoginViewModel = hiltViewModel(),
+    viewModel: postViewModel = viewModel(),
+    highlightQuery: String = ""
+) {
     var showInput by remember { mutableStateOf(false) }
     var commentText by remember { mutableStateOf("") }
-    val commentViewModel : commentViewModel = viewModel()
-    val likesViewModel : likesViewModel = viewModel()
+    val commentViewModel: commentViewModel = viewModel()
+    val likesViewModel: likesViewModel = viewModel()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isLiked by rememberSaveable { mutableStateOf(false) }
@@ -97,8 +106,16 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Column {
-                        Text(post.Title, fontWeight = FontWeight.Bold)
-                        Text(post.userName, fontWeight = FontWeight.Medium)
+                        HighlightedText(
+                            fullText = post.Title,
+                            query = highlightQuery,
+                            fontWeight = FontWeight.Bold
+                        )
+                        HighlightedText(
+                            fullText = post.userName,
+                            query = highlightQuery,
+                            fontWeight = FontWeight.Medium
+                        )
                         Text(
                             formatTimestamp(post.timestamp),
                             style = MaterialTheme.typography.bodySmall
@@ -106,8 +123,7 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                     }
                 }
                 if (post.authorId == currentUserId) {
-                    Box(modifier = Modifier
-                        .padding(8.dp)) {
+                    Box(modifier = Modifier.padding(8.dp)) {
                         PostOptionsMenu(
                             post = post,
                             navController = navController,
@@ -115,19 +131,28 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                         )
                     }
                 }
-
             }
             Spacer(modifier = Modifier.height(4.dp))
-            Text(post.body.toString(), maxLines = 5, overflow = TextOverflow.Ellipsis )
+            HighlightedText(
+                fullText = post.body,
+                query = highlightQuery,
+                maxLines = 5,
+                overflow = TextOverflow.Ellipsis
+            )
             Spacer(modifier = Modifier.height(8.dp))
             Divider(thickness = 1.dp, color = Color.Gray)
             Spacer(modifier = Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = { showInput = !showInput }) {
-                    Icon(Icons.Default.AddComment, contentDescription = "addComment", modifier = Modifier.size(18.dp), tint = Color.Gray)
+                    Icon(
+                        Icons.Default.AddComment,
+                        contentDescription = "addComment",
+                        modifier = Modifier.size(18.dp),
+                        tint = Color.Gray
+                    )
                 }
                 Spacer(modifier = Modifier.width(1.dp))
-                Text( post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis )
+                Text(post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
                 Spacer(modifier = Modifier.width(16.dp))
                 IconButton(
                     onClick = {
@@ -144,7 +169,7 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                     )
                 }
                 Spacer(modifier = Modifier.width(1.dp))
-                Text( post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Text(post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
             if (showInput) {
                 Row(
@@ -170,16 +195,20 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                         onClick = {
                             scope.launch {
                                 if (commentText.isNotBlank()) {
-                                    commentViewModel.createComment(post.id, commentText,
-                                        currentUserId.toString(), username)
+                                    commentViewModel.createComment(
+                                        post.id,
+                                        commentText,
+                                        currentUserId.toString(),
+                                        username
+                                    )
                                     showInput = false
                                     Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
                                 }
-                           }
-
+                            }
                         }
                     ) {
-                        Icon(Icons.Default.ArrowCircleUp,
+                        Icon(
+                            Icons.Default.ArrowCircleUp,
                             contentDescription = "Send",
                             modifier = Modifier.size(24.dp),
                             tint = Color.Blue
@@ -187,7 +216,6 @@ fun MessageCard(post: Post, currentUserId: String, onDelete: (String) -> Unit, n
                     }
                 }
             }
-
         }
     }
 }
