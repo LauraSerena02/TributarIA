@@ -13,6 +13,7 @@ appcompat = "1.7.0"
 media3CommonKtx = "1.6.1"
 pdfCompose = "1.3.0"
 pdfComposeVersion = "1.0.0-alpha09"
+workRuntimeKtx = "2.10.1"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerIndicators" }
@@ -35,6 +36,7 @@ androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
 androidx-pdf-compose = { group = "androidx.pdf", name = "pdf-compose", version.ref = "pdfCompose" }
 pdf-compose = { group = "androidx.pdf", name = "pdf-compose", version.ref = "pdfComposeVersion" }
+androidx-work-runtime-ktx = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "workRuntimeKtx" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

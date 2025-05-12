@@ -62,12 +62,10 @@ fun CalendarScreen(navController: NavController) {
                         containerColor = MaterialTheme.colorScheme.primaryContainer
                     )
                 ) {
-                    Row(
+                    Column(
                         modifier = Modifier
-                            .horizontalScroll(scrollState)
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
                         Text(
                             text = "¿Debes declarar renta este año?",
@@ -75,12 +73,13 @@ fun CalendarScreen(navController: NavController) {
                             color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
 
-                        Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         Button(
                             onClick = {
                                 navController.navigate("rentDeclarationCheck")
                             },
+                            modifier = Modifier.align(Alignment.End), // opcional
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -91,7 +90,7 @@ fun CalendarScreen(navController: NavController) {
                     }
                 }
 
-                // Contenedor principal con los otros botones
+                    // Contenedor principal con los otros botones
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
