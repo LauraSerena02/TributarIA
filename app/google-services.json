@@ -12,7 +12,20 @@
           "package_name": "com.example.tributaria"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "213402890734-3u2q3pd72fqj0h7t7r5os43f459ioce2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tributaria",
+            "certificate_hash": "e43b4b91dab8e3bb92b9cf1bd2a36a316d52a02e"
+          }
+        },
+        {
+          "client_id": "213402890734-1qtllnek7iq4ot8uv4r3immerirk3lur.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBQD71kAT58gjlq4F8kyZgJVqTdXMxV46M"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "213402890734-1qtllnek7iq4ot8uv4r3immerirk3lur.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }

@@ -12,17 +12,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 
 
 @Composable
 fun BottomNavigationBar(navController: NavController) {
-    // Navigation bar container
+    // Obtener la ruta actual para resaltar el ítem seleccionado
+    val currentRoute = navController.currentDestination?.route
+
     NavigationBar {
-        // Home navigation item
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Home, contentDescription = "Inicio") },
             label = { Text("Inicio") },
-            selected = false,
+            selected = currentRoute == "success",
             onClick = {
                 navController.navigate("success") {
                     popUpTo("success") { inclusive = false }
@@ -31,7 +33,6 @@ fun BottomNavigationBar(navController: NavController) {
             }
         )
 
-        // Gemini IA
         NavigationBarItem(
             icon = {
                 Image(
@@ -41,7 +42,7 @@ fun BottomNavigationBar(navController: NavController) {
                 )
             },
             label = { Text("Gemini IA") },
-            selected = false,
+            selected = currentRoute == "gemini_ia",
             onClick = {
                 navController.navigate("gemini_ia") {
                     popUpTo("success") { inclusive = false }
@@ -50,11 +51,10 @@ fun BottomNavigationBar(navController: NavController) {
             }
         )
 
-        // Calendar
         NavigationBarItem(
             icon = { Icon(Icons.Filled.Event, contentDescription = "Calendario") },
             label = { Text("Calendario") },
-            selected = false,
+            selected = currentRoute == "calendar",
             onClick = {
                 navController.navigate("calendar") {
                     popUpTo("success") { inclusive = false }
@@ -63,11 +63,10 @@ fun BottomNavigationBar(navController: NavController) {
             }
         )
 
-        // Forum
         NavigationBarItem(
             icon = { Icon(Icons.Outlined.ChatBubble, contentDescription = "Foro") },
             label = { Text("Foro") },
-            selected = false,
+            selected = currentRoute == "foro",
             onClick = {
                 navController.navigate("foro") {
                     popUpTo("success") { inclusive = false }

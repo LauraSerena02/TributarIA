@@ -31,6 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tributaria.features.balancepoint.presentation.BalancePointScreen
+import com.example.tributaria.features.calendar.presentation.CalendarScreen
+import com.example.tributaria.features.calendar.presentation.RentDeclarationCheckScreen
 import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.AddPostScreen
 import com.example.tributaria.features.foro.presentation.ForoScreen
@@ -111,6 +113,8 @@ fun AppNavigator() {
         composable("gemini_ia") { ChatScreen(navController) }
         composable ("foro") {ForoScreen(navController)}
         composable ("moneylend") {MoneyLendScreen(navController)}
+        composable ("calendar") { CalendarScreen(navController) }
+        composable("rentDeclarationCheck") { RentDeclarationCheckScreen(navController) }
         composable("add_post") { AddPostScreen(navController = navController) }
         composable("postDetail/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")

@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AttachMoney
+import androidx.compose.material.icons.filled.Event
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Settings
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.rounded.Calculate
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -154,7 +156,7 @@ fun CustomDrawer(
         }
 
         DrawerButton("Asistencia tributaria", Icons.Default.AccountBalance) {
-            navController.navigate("tax_assistance") {
+            navController.navigate("calendar") {
                 popUpTo("success") { inclusive = true }
                 launchSingleTop = true
             }

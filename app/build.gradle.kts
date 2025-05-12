@@ -142,7 +142,7 @@ dependencies {
     //Generative IA
     implementation("com.google.ai.client.generativeai:generativeai:0.1.2")
 
-    
+
 
     implementation("io.coil-kt:coil-compose:2.4.0")
 

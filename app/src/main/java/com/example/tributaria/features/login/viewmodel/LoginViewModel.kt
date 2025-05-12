@@ -20,13 +20,15 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-
 // ViewModel que gestiona la lógica de la pantalla de inicio de sesión
 @HiltViewModel
 class LoginViewModel @Inject constructor(
     private val authRepository: AuthRepository,
     private val db: FirebaseFirestore
 ) : ViewModel() {
+
+    // Estado para controlar la visibilidad del botón de Google
+    val isGoogleSignInAvailable = MutableStateFlow(false)
 
     // Estado mutable para gestionar el estado de la pantalla de inicio de sesión
     private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)

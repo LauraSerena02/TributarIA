@@ -11,6 +11,8 @@ activityCompose = "1.10.1"
 composeBom = "2024.09.00"
 appcompat = "1.7.0"
 media3CommonKtx = "1.6.1"
+pdfCompose = "1.3.0"
+pdfComposeVersion = "1.0.0-alpha09"
 
 [libraries]
 accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanistPagerIndicators" }
@@ -31,6 +33,8 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-media3-common-ktx = { group = "androidx.media3", name = "media3-common-ktx", version.ref = "media3CommonKtx" }
+androidx-pdf-compose = { group = "androidx.pdf", name = "pdf-compose", version.ref = "pdfCompose" }
+pdf-compose = { group = "androidx.pdf", name = "pdf-compose", version.ref = "pdfComposeVersion" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
