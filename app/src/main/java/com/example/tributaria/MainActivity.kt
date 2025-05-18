@@ -1,7 +1,8 @@
 package com.example.tributaria
 
-
+import android.os.Build
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,6 +19,8 @@ import com.example.tributaria.features.recoveraccount.presentation.RecoverScreen
 import com.example.tributaria.features.geminichatbot.presentation.ChatScreen
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -25,13 +28,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.tributaria.features.balancepoint.presentation.BalancePointScreen
 import com.example.tributaria.features.calendar.presentation.CalendarScreen
+import com.example.tributaria.features.calendar.presentation.ReminderConfigScreen
 import com.example.tributaria.features.calendar.presentation.RentDeclarationCheckScreen
 import com.example.tributaria.features.foro.model.postViewModel
 import com.example.tributaria.features.foro.presentation.AddPostScreen
@@ -41,7 +47,7 @@ import com.example.tributaria.features.home.HomeScreen
 import com.example.tributaria.features.news.presentation.DetailsScreen
 import com.example.tributaria.features.news.presentation.NewsScreen
 import com.example.tributaria.features.moneylend.presentation.MoneyLendScreen
-
+import android.Manifest
 
 
 import dagger.hilt.android.AndroidEntryPoint
@@ -69,7 +75,28 @@ fun AppNavigator() {
     val navController = rememberNavController()
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStackEntry?.destination?.route
-    val activity = LocalActivity.current
+    val context = LocalContext.current
+    val activity = context as ComponentActivity
+
+    // Lanzador para solicitud de permisos
+    val requestPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (!isGranted) {
+            // Mostrar mensaje al usuario sobre la importancia del permiso
+            Toast.makeText(
+                context,
+                "Los recordatorios no funcionarán sin permisos de notificación",
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+    // Solicitar permiso al iniciar (solo Android 13+)
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     BackHandler(enabled = true) {
         when (currentRoute) {
@@ -115,6 +142,7 @@ fun AppNavigator() {
         composable ("moneylend") {MoneyLendScreen(navController)}
         composable ("calendar") { CalendarScreen(navController) }
         composable("rentDeclarationCheck") { RentDeclarationCheckScreen(navController) }
+        composable("ReminderConfig") { ReminderConfigScreen(navController) }
         composable("add_post") { AddPostScreen(navController = navController) }
         composable("postDetail/{postId}") { backStackEntry ->
             val postId = backStackEntry.arguments?.getString("postId")

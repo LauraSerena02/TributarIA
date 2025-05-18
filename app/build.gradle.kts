@@ -70,6 +70,7 @@ dependencies {
     implementation ("com.google.dagger:hilt-android:2.48")
     implementation(libs.androidx.media3.common.ktx)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.androidx.hilt.common)
     kapt("com.google.dagger:hilt-android-compiler:2.48")
 
     testImplementation("junit:junit:4.+")
@@ -115,6 +116,15 @@ dependencies {
     // Koin para Jetpack Compose
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
 
+// Room
+    implementation("androidx.room:room-runtime:2.6.1")
+    kapt("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
+// Si usas Paging 3 (opcional)
+    implementation("androidx.room:room-paging:2.6.1")
+
+    implementation("androidx.hilt:hilt-work:1.1.0")
+    kapt("androidx.hilt:hilt-compiler:1.1.0")
 
 
 

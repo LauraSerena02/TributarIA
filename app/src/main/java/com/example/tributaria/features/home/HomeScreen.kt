@@ -63,7 +63,8 @@ fun HomeScreen(navController: NavController) {
                 .fillMaxSize()
                 .background(Color.Black.copy(alpha = 0.5f))
         )
-        // Contenido principal (ahora sin el contenedor)
+
+        // Contenido principal
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -72,37 +73,38 @@ fun HomeScreen(navController: NavController) {
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(bottom = 100.dp) // Ajuste para que no se pegue al borde
+                modifier = Modifier
+                    .padding(bottom = 40.dp) // Más cerca del borde inferior
+                    .fillMaxWidth()
             ) {
                 Text(
                     text = "Simplifica tu vida fiscal.\nGestiona tus obligaciones tributarias de forma fácil, rápida y segura.",
                     color = Color.White,
-                    style = MaterialTheme.typography.headlineLarge.copy(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.2.sp,
-                        lineHeight = 28.sp
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        letterSpacing = 0.5.sp,
+                        lineHeight = 20.sp
                     ),
-                    modifier = Modifier.padding(bottom = 24.dp),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
 
                 Button(
-                    onClick = {
-                        navController.navigate("login")
-                    },
+                    onClick = { navController.navigate("login") },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(56.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6200EE)),
-                    shape = MaterialTheme.shapes.medium
+                        .height(48.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF3700B3)),
+                    shape = MaterialTheme.shapes.medium,
+                    elevation = ButtonDefaults.elevatedButtonElevation(defaultElevation = 6.dp)
                 ) {
                     Text(
                         "Comenzar ahora",
                         color = Color.White,
-                        style = MaterialTheme.typography.bodyLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold
                         )
                     )
                 }
