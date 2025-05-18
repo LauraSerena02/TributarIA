@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.AddComment
@@ -77,146 +79,156 @@ fun PostDetailScreen(
     val post = viewModel.getPostById(postId)
 
     if (post != null) {
-        Column (
-            modifier = Modifier
-            .fillMaxSize()
-        ) {
-            Row(
+        Scaffold { paddingValues ->
+            Column (
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFF1E40AF))
-                    .padding(8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxSize()
+                    .padding(paddingValues)
             ) {
-                IconButton(onClick = { navController.popBackStack() }) {
-                    Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver", tint = Color.White)
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = "Detalle de la publicación",
-                    fontSize = 24.sp,
-                    color = Color.White
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Card(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(40.dp))
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(post!!.Title, fontWeight = FontWeight.Bold)
-                                Text(post.userName, fontWeight = FontWeight.Medium)
-                                Text(formatTimestamp(post.timestamp), style = MaterialTheme.typography.bodySmall)
-                            }
-                        }
-                        if (post.authorId == currentUserId) {
-                            Box(modifier = Modifier.padding(8.dp)) {
-                                PostOptionsMenu(
-                                    post = post,
-                                    navController = navController,
-                                    onDelete = { postId: String -> viewModel.deletePost(postId)  }
-                                )
-                            }
-                        }
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(Color(0xFF1E40AF))
+                        .padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Volver", tint = Color.White)
                     }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(post!!.body, maxLines = 5, overflow = TextOverflow.Ellipsis)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Divider(thickness = 1.dp, color = Color.Gray)
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconButton(onClick = { showInput = !showInput }) {
-                            Icon(Icons.Default.AddComment, contentDescription = "addComment", modifier = Modifier.size(18.dp), tint = Color.Gray)
-                        }
-                        Spacer(modifier = Modifier.width(1.dp))
-                        Text(post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        Spacer(modifier = Modifier.width(16.dp))
-                        IconButton(
-                            onClick = {
-                                scope.launch {
-                                    repositoryLike.toggleLikeOnPost(post.id,
-                                        currentUserId.toString()
-                                    )
-                                    isLiked = !isLiked
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "Detalle de la publicación",
+                        fontSize = 24.sp,
+                        color = Color.White
+                    )
+                }
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                ) {
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(Icons.Default.AccountCircle, contentDescription = "Profile", modifier = Modifier.size(40.dp))
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(post!!.Title, fontWeight = FontWeight.Bold)
+                                        Text(post.userName, fontWeight = FontWeight.Medium)
+                                        Text(formatTimestamp(post.timestamp), style = MaterialTheme.typography.bodySmall)
+                                    }
+                                }
+                                if (post.authorId == currentUserId) {
+                                    Box(modifier = Modifier.padding(8.dp)) {
+                                        PostOptionsMenu(
+                                            post = post,
+                                            navController = navController,
+                                            onDelete = { postId: String -> viewModel.deletePost(postId)  }
+                                        )
+                                    }
                                 }
                             }
-                        ) {
-                            Icon(
-                                imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
-                                contentDescription = if (isLiked) "Unlike Post" else "Like Post",
-                                tint = if (isLiked) Color.Blue else Color.Gray
-                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(post!!.body, maxLines = 5, overflow = TextOverflow.Ellipsis)
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Divider(thickness = 1.dp, color = Color.Gray)
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(onClick = { showInput = !showInput }) {
+                                    Icon(Icons.Default.AddComment, contentDescription = "addComment", modifier = Modifier.size(18.dp), tint = Color.Gray)
+                                }
+                                Spacer(modifier = Modifier.width(1.dp))
+                                Text(post.countComment.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                                Spacer(modifier = Modifier.width(16.dp))
+                                IconButton(
+                                    onClick = {
+                                        scope.launch {
+                                            repositoryLike.toggleLikeOnPost(post.id,
+                                                currentUserId.toString()
+                                            )
+                                            isLiked = !isLiked
+                                        }
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = if (isLiked) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                        contentDescription = if (isLiked) "Unlike Post" else "Like Post",
+                                        tint = if (isLiked) Color.Blue else Color.Gray
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(1.dp))
+                                Text(post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                            }
+
+                            if (showInput) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    OutlinedTextField(
+                                        value = commentText,
+                                        onValueChange = { commentText = it },
+                                        placeholder = { Text("Escribe tu comentario...") },
+                                        shape = RoundedCornerShape(30.dp),
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .padding(top = 8.dp),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedIndicatorColor = Color(0xFF1E40AF),
+                                            unfocusedIndicatorColor = Color(0xFF1E40AF),
+                                            focusedLabelColor = Color(0xFF1E40AF),
+                                            cursorColor = Color(0xFF1E40AF)
+                                        )
+                                    )
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                if (commentText.isNotBlank()) {
+                                                    commentViewModel.createComment(postId, commentText,
+                                                        currentUserId.toString(), username)
+                                                    showInput = false
+                                                    commentText = ""
+                                                    Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
+                                                }
+                                            }
+                                        }
+                                    ) {
+                                        Icon(Icons.Default.ArrowCircleUp, contentDescription = "Send", modifier = Modifier.size(24.dp), tint = Color.Blue)
+                                    }
+                                }
+                            }
                         }
-                        Spacer(modifier = Modifier.width(1.dp))
-                        Text(post.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
                     }
 
-                    if (showInput) {
+                    Column {
+                        Text("Comentarios", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        Spacer(modifier = Modifier.height(8.dp))
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            OutlinedTextField(
-                                value = commentText,
-                                onValueChange = { commentText = it },
-                                placeholder = { Text("Escribe tu comentario...") },
-                                shape = RoundedCornerShape(30.dp),
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(top = 8.dp),
-                                colors = TextFieldDefaults.colors(
-                                    focusedIndicatorColor = Color(0xFF1E40AF),
-                                    unfocusedIndicatorColor = Color(0xFF1E40AF),
-                                    focusedLabelColor = Color(0xFF1E40AF),
-                                    cursorColor = Color(0xFF1E40AF)
-                                )
-                            )
-                            IconButton(
-                                onClick = {
-                                    scope.launch {
-                                        if (commentText.isNotBlank()) {
-                                            commentViewModel.createComment(postId, commentText,
-                                                currentUserId.toString(), username)
-                                            showInput = false
-                                            Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
-                                        }
-                                    }
+                            LazyColumn {
+                                items(comments) { comment ->
+                                    CommentItem(comment, postId)
                                 }
-                            ) {
-                                Icon(Icons.Default.ArrowCircleUp, contentDescription = "Send", modifier = Modifier.size(24.dp), tint = Color.Blue)
                             }
                         }
                     }
                 }
-            }
 
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Comentarios", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                Spacer(modifier = Modifier.height(8.dp))
 
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    LazyColumn {
-                        items(comments) { comment ->
-                            CommentItem(comment, postId)
-                        }
-                    }
-                }
             }
 
         }

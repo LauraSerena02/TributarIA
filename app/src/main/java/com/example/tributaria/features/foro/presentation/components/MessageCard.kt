@@ -202,6 +202,7 @@ fun MessageCard(
                                         username
                                     )
                                     showInput = false
+                                    commentText = ""
                                     Toast.makeText(context, "Comentario agregado", Toast.LENGTH_SHORT).show()
                                 }
                             }

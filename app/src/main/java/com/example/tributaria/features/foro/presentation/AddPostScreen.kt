@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Button
@@ -53,6 +55,7 @@ fun AddPostScreen(
     val userId = loginViewModel.currentUserId
     val context = LocalContext.current
     val username by loginViewModel.userName.collectAsState(initial = "")
+    val scrollState = rememberScrollState()
 
     LaunchedEffect(Unit) {
         loginViewModel.checkUserSession()
@@ -72,7 +75,6 @@ fun AddPostScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Encabezado fijo
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -91,79 +93,80 @@ fun AddPostScreen(
                 )
             }
 
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                ) {
-                    OutlinedTextField(
-                        value = title.toString(),
-                        onValueChange = { title = it },
-                        label = { Text("Título") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color(0xFF1E40AF),
-                            unfocusedIndicatorColor = Color(0xFF1E40AF),
-                            focusedLabelColor = Color(0xFF1E40AF),
-                            cursorColor = Color(0xFF1E40AF)
-                        )
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .padding(16.dp),
+            ) {
+                OutlinedTextField(
+                    value = title.toString(),
+                    onValueChange = { title = it },
+                    label = { Text("Título") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color(0xFF1E40AF),
+                        unfocusedIndicatorColor = Color(0xFF1E40AF),
+                        focusedLabelColor = Color(0xFF1E40AF),
+                        cursorColor = Color(0xFF1E40AF)
                     )
+                )
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(8.dp))
 
-                    OutlinedTextField(
-                        value = body.toString(),
-                        onValueChange = { body = it },
-                        label = { Text("Contenido") },
-                        modifier = Modifier.fillMaxWidth(),
-                        colors = TextFieldDefaults.colors(
-                            focusedIndicatorColor = Color(0xFF1E40AF),
-                            unfocusedIndicatorColor = Color(0xFF1E40AF),
-                            focusedLabelColor = Color(0xFF1E40AF),
-                            cursorColor = Color(0xFF1E40AF)
-                        )
+                OutlinedTextField(
+                    value = body.toString(),
+                    onValueChange = { body = it },
+                    label = { Text("Contenido") },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        focusedIndicatorColor = Color(0xFF1E40AF),
+                        unfocusedIndicatorColor = Color(0xFF1E40AF),
+                        focusedLabelColor = Color(0xFF1E40AF),
+                        cursorColor = Color(0xFF1E40AF)
                     )
+                )
 
-                    if (errorMessage.isNotEmpty()) {
-                        Text(
-                            text = errorMessage,
-                            color = Color.Red,
-                            fontSize = 14.sp,
-                            modifier = Modifier.padding(top = 8.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (title?.isBlank() == true || body?.isBlank() == true) {
-                                errorMessage = "Por favor, complete todos los campos."
-                                return@Button
-                            } else {
-                                errorMessage = ""
-                            }
-
-                            if (isEditMode) {
-                                postToEdit?.let {
-                                    viewModel.updatePost(it.id, title.toString(), body)
-                                    Toast.makeText(context, "Publicación editada", Toast.LENGTH_SHORT).show()
-                                }
-                            } else {
-                                viewModel.createPost(title.toString(), body, userId.toString(), username)
-                                Toast.makeText(context, "Publicación agregada", Toast.LENGTH_SHORT).show()
-                            }
-                            navController.popBackStack()
-                        },
-                        modifier = Modifier.align(Alignment.End),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E40AF),
-                            contentColor = Color.White
-                        )
-                    ) {
-                        Text(if (isEditMode) "Actualizar" else "Publicar")
-                    }
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier.padding(top = 8.dp)
+                    )
                 }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    onClick = {
+                        if (title?.isBlank() == true || body?.isBlank() == true) {
+                            errorMessage = "Por favor, complete todos los campos."
+                            return@Button
+                        } else {
+                            errorMessage = ""
+                        }
+
+                        if (isEditMode) {
+                            postToEdit?.let {
+                                viewModel.updatePost(it.id, title.toString(), body)
+                                Toast.makeText(context, "Publicación editada", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            viewModel.createPost(title.toString(), body, userId.toString(), username)
+                            Toast.makeText(context, "Publicación agregada", Toast.LENGTH_SHORT).show()
+                        }
+                        navController.popBackStack()
+                    },
+                    modifier = Modifier.align(Alignment.End),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1E40AF),
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text(if (isEditMode) "Actualizar" else "Publicar")
+                }
+            }
 
         }
     }
