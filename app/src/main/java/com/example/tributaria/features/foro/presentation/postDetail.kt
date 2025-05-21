@@ -28,6 +28,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.tributaria.features.foro.model.commentViewModel
@@ -57,6 +60,7 @@ fun PostDetailScreen(
     val currentUserId = loginViewModel.currentUserId
     val username by loginViewModel.userName.collectAsState(initial = "")
     var isLiked by remember { mutableStateOf(false) }
+
 
     LaunchedEffect(Unit) {
         loginViewModel.checkUserSession()
@@ -159,6 +163,7 @@ fun PostDetailScreen(
                                             )
                                             isLiked = !isLiked
                                         }
+                                        commentViewModel.loadComments(postId)
                                     }
                                 ) {
                                     Icon(

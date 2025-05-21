@@ -12,13 +12,28 @@ data class Comment(
     val authorId: String = "",
     val postId: String = "",
     val userName: String = "",
-    val totalLikes: Int = 0,
+    var totalLikes: Int = 0,
     val timestamp: Timestamp = Timestamp.now()
 )
 
 class commentsRepository {
 
     private val firestore = FirebaseFirestore.getInstance()
+
+    fun observeComments(postId: String, onCommentsChanged: (List<Comment>) -> Unit) {
+        firestore.collection("comments")
+            .whereEqualTo("postId", postId) // Filtrar por el ID del post
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null) {
+                    return@addSnapshotListener
+                }
+                val comments = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(Comment::class.java)?.copy(id = doc.id)
+                }
+                onCommentsChanged(comments)
+            }
+    }
+
 
     suspend fun addCommentToPost(postId: String, body: String, authorId: String, userName: String): Result<Unit> {
         return try {

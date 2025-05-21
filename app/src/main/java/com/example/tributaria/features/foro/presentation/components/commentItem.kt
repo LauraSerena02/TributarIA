@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +42,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tributaria.features.foro.model.commentViewModel
 import com.example.tributaria.features.foro.model.likesViewModel
@@ -62,9 +66,18 @@ fun CommentItem(comment: Comment, postId: String) {
     val isOwner = comment.authorId == currentUserId
     var isLiked by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    var reactionTrigger by remember { mutableStateOf(0) }
-    LaunchedEffect(reactionTrigger) {
-        viewModel.loadComments(postId)
+    val lifecycleOwner = LocalLifecycleOwner.current
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                viewModel.observeComments(postId)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     LaunchedEffect(comment.id, currentUserId) {
@@ -110,9 +123,7 @@ fun CommentItem(comment: Comment, postId: String) {
                                 likesViewModel.reactionComment(comment.id,
                                     currentUserId.toString()
                                 )
-                                viewModel.loadComments(postId)
                                 isLiked = !isLiked
-                                reactionTrigger++
                             }
                         }
                     ) {
@@ -123,7 +134,7 @@ fun CommentItem(comment: Comment, postId: String) {
                         )
                     }
                     Spacer(modifier = Modifier.width(1.dp))
-                    Text(comment.totalLikes.toString(), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Text(comment.totalLikes.toString(), overflow = TextOverflow.Ellipsis)
                 }
                 if (isOwner) {
                     Spacer(modifier = Modifier.height(8.dp))

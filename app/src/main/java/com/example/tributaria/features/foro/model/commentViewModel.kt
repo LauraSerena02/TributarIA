@@ -19,6 +19,13 @@ class commentViewModel : ViewModel() {
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+
+    fun observeComments(postId: String) {
+        repository.observeComments(postId) { updatedComments ->
+            _comments.value = updatedComments
+        }
+    }
+
     fun loadComments(postId: String) {
         viewModelScope.launch {
             val result = repository.getCommentsForPost(postId)
