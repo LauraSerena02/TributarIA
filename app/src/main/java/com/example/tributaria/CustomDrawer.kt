@@ -161,12 +161,7 @@ fun CustomDrawer(
                 launchSingleTop = true
             }
         }
-        DrawerButton("Configuración", Icons.Default.Settings) {
-            navController.navigate("settings") {
-                popUpTo("success") { inclusive = true }
-                launchSingleTop = true
-            }
-        }
+
         DrawerButton("Cerrar Sesión", Icons.AutoMirrored.Filled.Logout) {
             // Llama a la función de logout desde la instancia del ViewModel
             loginViewModel.logout()
