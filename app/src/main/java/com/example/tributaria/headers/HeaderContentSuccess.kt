@@ -19,13 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.sp
 import com.example.tributaria.R
 
 @Composable
 fun HeaderContentSuccess(
     onMenuClick: () -> Unit,
-    username: String // <-- nuevo parámetro
+    username: String
 ) {
     Box(
         modifier = Modifier
@@ -51,7 +52,14 @@ fun HeaderContentSuccess(
 
             Column(modifier = Modifier.weight(1f)) {
                 Spacer(modifier = Modifier.weight(1f))
-                Text("Hola, $username", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+                Text(
+                    text = "Hola, $username",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Text("¿Qué planificación realizaremos hoy?", color = Color.White, fontSize = 14.sp)
             }
 

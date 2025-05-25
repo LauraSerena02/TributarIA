@@ -38,6 +38,9 @@ fun CalendarScreen(navController: NavController) {
     val showConfirmation by viewModel.showConfirmation.observeAsState(false)
     val showError by viewModel.showError.observeAsState(false)
 
+
+
+
     LaunchedEffect(Unit) {
         viewModel.loadUserConfig()
         viewModel.loadAllReminders() // Cambiado a cargar todos los recordatorios
@@ -179,6 +182,14 @@ fun CalendarScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
+                // Botón de prueba
+                Button(
+                    onClick = { viewModel.triggerTestNotification() },
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    Text("Mostrar Notificación")
+                }
+
                 when {
                     scheduledReminders.isEmpty() -> {
                         Text(
@@ -218,11 +229,7 @@ fun CalendarScreen(navController: NavController) {
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                                             )
-                                            Text(
-                                                text = if (reminder.isActive) "Activo" else "Inactivo",
-                                                style = MaterialTheme.typography.labelSmall,
-                                                color = if (reminder.isActive) Color.Green else Color.Red
-                                            )
+
                                         }
                                         IconButton(
                                             onClick = {

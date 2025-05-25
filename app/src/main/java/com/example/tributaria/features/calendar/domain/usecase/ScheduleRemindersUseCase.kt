@@ -221,6 +221,22 @@ class ScheduleRemindersUseCase @Inject constructor(
         }
     }
 
+    suspend fun showTestNotificationNow(userId: String, message: String) {
+        val workId = UUID.randomUUID().toString()
+        val inputData = workDataOf(
+            "message" to message,
+            "userId" to userId,
+            "workId" to workId
+        )
+
+        // Ejecutar el Worker inmediatamente (sin delay)
+        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
+            .setInputData(inputData)
+            .build()
+
+        workManager.enqueue(workRequest).result.await() // Espera a que se ejecute
+    }
+
     private fun formatDate(timestamp: Long): String {
         return SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(timestamp))
     }

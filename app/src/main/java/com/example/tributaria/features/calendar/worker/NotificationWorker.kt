@@ -32,24 +32,13 @@ class NotificationWorker @AssistedInject constructor(
         return try {
             val message = inputData.getString("message") ?: return Result.failure()
             val workId = inputData.getString("workId") ?: return Result.failure()
-            val userId = inputData.getString("userId") ?: return Result.failure()
 
-            // Mostrar notificación
-            if (!notificationHelper.showNotification("Recordatorio", message)) {
-                Log.w("NotificationWorker", "No se pudo mostrar notificación")
+            if (notificationHelper.showNotification("Recordatorio", message)) {
+                Result.success()
+            } else {
+                Result.retry()
             }
-
-            // NO eliminar el recordatorio de la base de datos aquí
-            // Solo registrar que la notificación fue mostrada
-            Log.d("NotificationWorker", "Notificación mostrada para workId: $workId")
-
-            CoroutineScope(Dispatchers.IO).launch {
-                reminderRepository.markReminderCompleted(workId)
-            }
-
-            Result.success()
         } catch (e: Exception) {
-            Log.e("NotificationWorker", "Error en doWork", e)
             Result.failure()
         }
     }

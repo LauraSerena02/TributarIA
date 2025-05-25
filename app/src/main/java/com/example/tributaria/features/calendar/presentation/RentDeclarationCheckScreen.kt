@@ -177,8 +177,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     BulletPoint(text = "Personas naturales que superen alguno de los límites")
-                    BulletPoint(text = "Personas jurídicas en general")
-                    BulletPoint(text = "Responsables de IVA (obligatorio)")
+                    BulletPoint(text = "Personas jurídicas  se implementó una tarifa del 35% sobre el valor total de su patrimonio.")
                 }
             }
         }

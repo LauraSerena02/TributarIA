@@ -8,12 +8,15 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.tributaria.features.calendar.domain.usecase.ScheduleRemindersUseCase
 import com.example.tributaria.features.calendar.repository.ReminderRepository
 import com.example.tributaria.features.calendar.util.CalendarConstants
 import com.example.tributaria.features.calendar.util.await
+import com.example.tributaria.features.calendar.worker.NotificationWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -45,6 +48,22 @@ class CalendarViewModel @Inject constructor(
 
     init {
         loadUserConfig()
+    }
+
+    // Funcion de prueba
+    fun triggerTestNotification() {
+        viewModelScope.launch {  // <-- Esto crea el contexto de corrutina necesario
+            try {
+                val userId = _userConfig.value?.second ?: "test_user_123"
+                scheduleReminders.showTestNotificationNow(
+                    userId = userId,
+                    message = "🔴 Notificación de prueba - Faltan 7 días para declarar renta"
+                )
+            } catch (e: Exception) {
+                Log.e("CalendarViewModel", "Error al mostrar notificación", e)
+                _showError.value = true
+            }
+        }
     }
 
     // Carga la configuración del usuario
