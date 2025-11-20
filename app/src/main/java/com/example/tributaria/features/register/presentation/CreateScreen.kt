@@ -227,9 +227,9 @@ fun CreateScreen(navController: NavHostController, viewModel: CreateAccountViewM
         // Botón para enviar el formulario de registro
         Button(
             onClick = viewModel::register,
-            enabled = state.termsAccepted && !state.isLoading,
+            enabled = viewModel.isFormValid() && !state.isLoading,
             colors = ButtonDefaults.buttonColors(
-                containerColor = if (state.termsAccepted) Color(0xFF2271B3) else Color.Gray
+                containerColor = if (viewModel.isFormValid()) Color(0xFF2271B3) else Color.Gray
             ),
             modifier = Modifier
                 .fillMaxWidth()

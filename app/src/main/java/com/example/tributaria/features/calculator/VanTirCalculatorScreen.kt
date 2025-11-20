@@ -1,4 +1,5 @@
 package com.example.tributaria.features.calculator
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,14 +45,18 @@ import kotlin.math.abs
 
 @Composable
 fun VanTirCalculatorScreen(navController: NavHostController) {
+
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
+
     var inversionInicial by remember { mutableStateOf("") }
     var tasaDescuento by remember { mutableStateOf("") }
     var flujos by remember { mutableStateOf(mutableListOf("")) }
+
     var van by remember { mutableStateOf<String?>(null) }
     var tir by remember { mutableStateOf<String?>(null) }
+
     var feedbackMessage by remember { mutableStateOf("") }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -60,7 +65,7 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
         drawerContent = {
             CustomDrawer(
                 navController = navController,
-                onLogout = { /* Logout logic */ }
+                onLogout = { }
             )
         }
     ) {
@@ -72,6 +77,7 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
             },
             bottomBar = { BottomNavigationBar(navController) }
         ) { paddingValues ->
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -82,6 +88,9 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
 
                 Spacer(Modifier.height(16.dp))
 
+                // -----------------------------
+                // INVERSIÓN INICIAL
+                // -----------------------------
                 Text("Inversión inicial:", fontSize = 18.sp)
                 OutlinedTextField(
                     value = inversionInicial,
@@ -89,143 +98,185 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                     label = { Text("Inversión inicial") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color(0xFF1E40AF),
-                        unfocusedIndicatorColor = Color(0xFF1E40AF),
-                        focusedLabelColor = Color(0xFF1E40AF),
-                        cursorColor = Color(0xFF1E40AF)
-                    )
+                    colors = textFieldColors()
                 )
 
                 Spacer(Modifier.height(8.dp))
 
-                Text("Tipo de interés:", fontSize = 18.sp)
+                // -----------------------------
+                // TASA DE DESCUENTO
+                // -----------------------------
+                Text("Tasa de descuento (%):", fontSize = 18.sp)
                 OutlinedTextField(
                     value = tasaDescuento,
                     onValueChange = { tasaDescuento = it },
                     label = { Text("Tasa de descuento") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color(0xFF1E40AF),
-                        unfocusedIndicatorColor = Color(0xFF1E40AF),
-                        focusedLabelColor = Color(0xFF1E40AF),
-                        cursorColor = Color(0xFF1E40AF)
-                    )
+                    colors = textFieldColors()
                 )
 
                 Spacer(Modifier.height(16.dp))
 
+                // -----------------------------
+                // FLUJOS DE CAJA
+                // -----------------------------
                 Column(modifier = Modifier.fillMaxWidth()) {
+
                     Text("Flujos de caja:", style = MaterialTheme.typography.titleMedium)
 
                     flujos.forEachIndexed { index, flujo ->
+
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 4.dp)
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
                         ) {
+
                             OutlinedTextField(
                                 value = flujo,
                                 onValueChange = { newValue ->
                                     flujos = flujos.toMutableList().also { it[index] = newValue }
                                 },
                                 label = { Text("Año ${index + 1}") },
-                                placeholder = { Text("Flujo de caja (cobros - pagos)") },
+                                placeholder = { Text("Flujo (cobros - pagos)") },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 modifier = Modifier.weight(1f).padding(end = 8.dp),
-                                colors = TextFieldDefaults.colors(
-                                    focusedIndicatorColor = Color(0xFF1E40AF),
-                                    unfocusedIndicatorColor = Color(0xFF1E40AF),
-                                    focusedLabelColor = Color(0xFF1E40AF),
-                                    cursorColor = Color(0xFF1E40AF)
-                                )
+                                colors = textFieldColors()
                             )
-
-                            Spacer(modifier = Modifier.width(4.dp))
 
                             IconButton(
                                 onClick = {
                                     if (flujos.size > 1) {
                                         flujos = flujos.toMutableList().also { it.removeAt(index) }
-                                    } }
+                                    }
+                                }
                             ) {
                                 Icon(Icons.Default.Delete, contentDescription = "Eliminar", tint = Color.Red)
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(Modifier.height(8.dp))
 
                     Button(
                         onClick = {
-                            flujos = (flujos + "") as MutableList<String>},
+                            flujos = (flujos + "") as MutableList<String>
+                        },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1E40AF),
-                            contentColor = Color.White
-                        )
-
+                        colors = buttonColorsBlue()
                     ) {
                         Text("Añadir año")
                     }
                 }
 
-
                 Spacer(Modifier.height(8.dp))
 
-                // VAN
+                // -----------------------------
+                // RESULTADOS VAN Y TIR
+                // -----------------------------
                 OutlinedTextField(
                     value = van ?: "",
                     onValueChange = {},
                     enabled = false,
                     label = { Text("VAN") },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color(0xFF1E40AF),
-                        unfocusedIndicatorColor = Color(0xFF1E40AF),
-                        focusedLabelColor = Color(0xFF1E40AF),
-                        cursorColor = Color(0xFF1E40AF)
-                    )
+                    colors = textFieldColors()
                 )
 
                 Spacer(Modifier.height(8.dp))
 
-                // TIR
                 OutlinedTextField(
                     value = tir ?: "",
                     onValueChange = {},
                     enabled = false,
-                    label = { Text("TIR") },
+                    label = { Text("TIR (%)") },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = TextFieldDefaults.colors(
-                        focusedIndicatorColor = Color(0xFF1E40AF),
-                        unfocusedIndicatorColor = Color(0xFF1E40AF),
-                        focusedLabelColor = Color(0xFF1E40AF),
-                        cursorColor = Color(0xFF1E40AF)
-                    )
+                    colors = textFieldColors()
                 )
+
                 Spacer(Modifier.height(12.dp))
+
+                // -----------------------------
+                // BOTÓN CALCULAR + VALIDACIONES
+                // -----------------------------
                 Button(
                     onClick = {
+
+                        // ====== VALIDACIONES ======
+
+                        // Inversión inicial
+                        if (inversionInicial.isBlank()) {
+                            feedbackMessage = "Debes ingresar la inversión inicial."
+                            showDialog = true
+                            return@Button
+                        }
+                        if (inversionInicial.toDoubleOrNull() == null) {
+                            feedbackMessage = "La inversión inicial debe ser un número válido."
+                            showDialog = true
+                            return@Button
+                        }
+                        if (inversionInicial.toDouble() <= 0) {
+                            feedbackMessage = "La inversión inicial debe ser mayor que cero."
+                            showDialog = true
+                            return@Button
+                        }
+
+                        // Tasa de descuento
+                        if (tasaDescuento.isBlank()) {
+                            feedbackMessage = "Debes ingresar la tasa de descuento."
+                            showDialog = true
+                            return@Button
+                        }
+                        if (tasaDescuento.toDoubleOrNull() == null) {
+                            feedbackMessage = "La tasa de descuento debe ser un número válido."
+                            showDialog = true
+                            return@Button
+                        }
+                        if (tasaDescuento.toDouble() <= 0) {
+                            feedbackMessage = "La tasa de descuento debe ser mayor a 0%."
+                            showDialog = true
+                            return@Button
+                        }
+
+                        // Flujos de caja
+                        if (flujos.isEmpty()) {
+                            feedbackMessage = "Debes ingresar al menos un flujo de caja."
+                            showDialog = true
+                            return@Button
+                        }
+
+                        flujos.forEachIndexed { index, flujo ->
+                            if (flujo.isBlank()) {
+                                feedbackMessage = "El flujo del año ${index + 1} no puede estar vacío."
+                                showDialog = true
+                                return@Button
+                            }
+                            if (flujo.toDoubleOrNull() == null) {
+                                feedbackMessage = "El flujo del año ${index + 1} debe ser un número válido."
+                                showDialog = true
+                                return@Button
+                            }
+                        }
+
+                        // -----------------------------
+                        // SI TODO ES VÁLIDO → CALCULAR
+                        // -----------------------------
                         calcularVanYTir(flujos, inversionInicial, tasaDescuento) { vanResult, tirResult ->
                             van = vanResult
                             tir = tirResult
                             feedbackMessage = generarRetroalimentacion(vanResult, tirResult, tasaDescuento)
                             showDialog = true
-
                         }
-
                     },
                     modifier = Modifier.fillMaxWidth(),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF1E40AF),
-                        contentColor = Color.White
-                    )
+                    colors = buttonColorsBlue()
                 ) {
                     Text("Calcular")
                 }
+
+                // -----------------------------
+                // ALERT DIALOG (Resultados / Errores)
+                // -----------------------------
                 if (showDialog) {
                     AlertDialog(
                         onDismissRequest = { showDialog = false },
@@ -234,29 +285,24 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                                 modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = "Resultado", textAlign = TextAlign.Center)
+                                Text("Resultado", textAlign = TextAlign.Center)
                             }
                         },
                         text = {
                             Text(
                                 text = feedbackMessage,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center
                             )
                         },
                         confirmButton = {
                             Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(bottom = 8.dp),
+                                modifier = Modifier.fillMaxWidth(),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Button(
                                     onClick = { showDialog = false },
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF1E40AF),
-                                        contentColor = Color.White
-                                    )
+                                    colors = buttonColorsBlue()
                                 ) {
                                     Text("Aceptar")
                                 }
@@ -264,32 +310,48 @@ fun VanTirCalculatorScreen(navController: NavHostController) {
                         }
                     )
                 }
-
             }
         }
     }
 }
-//Cálculos
+
+@Composable
+private fun textFieldColors() = TextFieldDefaults.colors(
+    focusedIndicatorColor = Color(0xFF1E40AF),
+    unfocusedIndicatorColor = Color(0xFF1E40AF),
+    focusedLabelColor = Color(0xFF1E40AF),
+    cursorColor = Color(0xFF1E40AF)
+)
+
+@Composable
+private fun buttonColorsBlue() = ButtonDefaults.buttonColors(
+    containerColor = Color(0xFF1E40AF),
+    contentColor = Color.White
+)
+
+// -----------------------------
+// CÁLCULO DE VAN Y TIR
+// -----------------------------
 fun calcularVanYTir(
     flujos: List<String>,
     inversionInicial: String,
     tasaDescuento: String,
     onResultado: (van: String, tir: String?) -> Unit
 ) {
+
     val flujoNumerico = flujos.mapNotNull { it.toDoubleOrNull() }
     val inversion = inversionInicial.toDoubleOrNull() ?: return
     val tasa = tasaDescuento.toDoubleOrNull()?.div(100) ?: return
 
-    // VAN
     val vanCalculado = flujoNumerico
         .mapIndexed { i, f -> f / Math.pow(1 + tasa, (i + 1).toDouble()) }
         .sum() - inversion
 
-    // TIR usando búsqueda binaria
-    var low = -0.9999  // Tasa mínima permitida (puede ser negativa)
-    var high = 1.0     // Tasa máxima permitida
+    // TIR
+    var low = -0.9999
+    var high = 1.0
     var tir = 0.0
-    val epsilon = 1e-6  // Precisión deseada
+    val epsilon = 1e-6
 
     repeat(100) {
         val mid = (low + high) / 2
@@ -302,11 +364,7 @@ fun calcularVanYTir(
             return@repeat
         }
 
-        if (vanMid > 0) {
-            low = mid
-        } else {
-            high = mid
-        }
+        if (vanMid > 0) low = mid else high = mid
     }
 
     val tirCalculada = tir * 100
@@ -318,21 +376,22 @@ fun calcularVanYTir(
 }
 
 fun generarRetroalimentacion(vanStr: String, tirStr: String?, tasaDescuentoStr: String): String {
+
     val van = vanStr.toDoubleOrNull() ?: return ""
     val tir = tirStr?.toDoubleOrNull() ?: return ""
     val tmar = tasaDescuentoStr.toDoubleOrNull() ?: return ""
 
     val vanFeedback = when {
-        van > 0 -> "✅ El VAN es mayor a 0, lo que indica que el proyecto es rentable."
-        van == 0.0 -> "⚠️ El VAN es igual a 0, el proyecto es indiferente (sin ganancia ni pérdida)."
-        else -> "❌ El VAN es menor a 0, el proyecto no es rentable."
+        van > 0 -> "El VAN es mayor a 0, el proyecto es rentable."
+        van == 0.0 -> "El VAN es igual a 0, el proyecto es indiferente."
+        else -> "El VAN es menor a 0, el proyecto no es rentable."
     }
 
     val tirFeedback = when {
-        tir > tmar && tir <= 25 -> "✅ La TIR es mayor a la tasa de descuento (TMAR), el proyecto es rentable."
-        tir > tmar && tir > 25 -> "✅ La TIR es mayor a la TMAR, pero al ser superior al 25%, se recomienda revisar los flujos de caja por posible inconsistencia."
-        tir == tmar -> "⚠️ La TIR es igual a la TMAR, el proyecto es indiferente."
-        else -> "❌ La TIR es menor a la TMAR, el proyecto no es rentable."
+        tir > tmar && tir <= 25 -> "La TIR supera la TMAR, el proyecto es rentable."
+        tir > tmar && tir > 25 -> "La TIR es muy alta (>25%), revisar los flujos por posible inconsistencia."
+        tir == tmar -> "La TIR es igual a la TMAR, el proyecto no genera valor adicional."
+        else -> "La TIR es menor que la TMAR, el proyecto no es rentable."
     }
 
     return "$vanFeedback\n$tirFeedback"

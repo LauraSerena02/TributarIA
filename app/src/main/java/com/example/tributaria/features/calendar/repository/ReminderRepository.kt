@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.room.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import javax.inject.Singleton
 
-// Definiciones de Entity y DAO
+// Definición de la entidad
 @Entity(tableName = "reminders")
 data class ReminderEntity(
     @PrimaryKey val id: String,
@@ -13,10 +14,10 @@ data class ReminderEntity(
     val message: String,
     val triggerTime: Long,
     val workId: String,
-    val isActive: Boolean = true // Nuevo campo
+    val isActive: Boolean = true
 )
 
-// ReminderDao.kt
+// Definición del DAO
 @Dao
 interface ReminderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -28,31 +29,48 @@ interface ReminderDao {
     @Query("SELECT * FROM reminders")
     suspend fun getAllReminders(): List<ReminderEntity>
 
+    @Query("SELECT * FROM reminders WHERE id = :id")
+    suspend fun getReminderById(id: String): ReminderEntity?
+
+    @Query("SELECT * FROM reminders WHERE workId = :workId")
+    suspend fun getReminderByWorkId(workId: String): ReminderEntity?
+
     @Delete
     suspend fun deleteReminder(reminder: ReminderEntity)
 
     @Query("DELETE FROM reminders WHERE id = :reminderId")
     suspend fun deleteReminderById(reminderId: String)
 
+    @Query("DELETE FROM reminders WHERE workId = :workId")
+    suspend fun deleteReminderByWorkId(workId: String)
+
+    @Query("UPDATE reminders SET isActive = :isActive WHERE workId = :workId")
+    suspend fun updateReminderStatus(workId: String, isActive: Boolean)
+
     @Query("UPDATE reminders SET isActive = 0 WHERE workId = :workId")
     suspend fun markReminderCompleted(workId: String)
 }
 
-// ReminderRepository.kt
+// Interfaz del repositorio
 interface ReminderRepository {
     // Configuración (SharedPreferences)
     fun saveReminderConfig(userType: String, userId: String)
     fun getReminderConfig(): Pair<String, String>?
 
-    // Recordatorios (Room)
+    // Operaciones con recordatorios
     suspend fun saveReminder(reminder: ReminderEntity)
     suspend fun getReminders(userId: String): List<ReminderEntity>
     suspend fun getAllReminders(): List<ReminderEntity>
+    suspend fun getReminderById(id: String): ReminderEntity?
+    suspend fun getReminderByWorkId(workId: String): ReminderEntity?
     suspend fun deleteReminder(reminderId: String)
+    suspend fun deleteReminderByWorkId(workId: String)
+    suspend fun updateReminderStatus(workId: String, isActive: Boolean)
     suspend fun markReminderCompleted(workId: String)
 }
 
-// ReminderRepositoryImpl.kt
+// Implementación del repositorio
+@Singleton
 class ReminderRepositoryImpl @Inject constructor(
     private val dao: ReminderDao,
     @ApplicationContext private val context: Context
@@ -62,15 +80,13 @@ class ReminderRepositoryImpl @Inject constructor(
         context.getSharedPreferences("reminder_prefs", Context.MODE_PRIVATE)
     }
 
+    // Configuración del usuario
     override fun saveReminderConfig(userType: String, userId: String) {
         prefs.edit().apply {
             putString("user_type", userType)
             putString("user_id", userId)
             apply()
         }
-    }
-    override suspend fun markReminderCompleted(workId: String) {
-        dao.markReminderCompleted(workId)
     }
 
     override fun getReminderConfig(): Pair<String, String>? {
@@ -79,6 +95,7 @@ class ReminderRepositoryImpl @Inject constructor(
         return if (type != null && id != null) Pair(type, id) else null
     }
 
+    // Operaciones con recordatorios
     override suspend fun saveReminder(reminder: ReminderEntity) {
         dao.saveReminder(reminder)
     }
@@ -91,7 +108,37 @@ class ReminderRepositoryImpl @Inject constructor(
         return dao.getAllReminders()
     }
 
+    override suspend fun getReminderById(id: String): ReminderEntity? {
+        return dao.getReminderById(id)
+    }
+
+    override suspend fun getReminderByWorkId(workId: String): ReminderEntity? {
+        return dao.getReminderByWorkId(workId)
+    }
+
     override suspend fun deleteReminder(reminderId: String) {
         dao.deleteReminderById(reminderId)
     }
+
+    override suspend fun deleteReminderByWorkId(workId: String) {
+        dao.deleteReminderByWorkId(workId)
+    }
+
+    override suspend fun updateReminderStatus(workId: String, isActive: Boolean) {
+        dao.updateReminderStatus(workId, isActive)
+    }
+
+    override suspend fun markReminderCompleted(workId: String) {
+        dao.markReminderCompleted(workId)
+    }
+}
+
+// Definición de la base de datos
+@Database(
+    entities = [ReminderEntity::class],
+    version = 1,
+    exportSchema = false
+)
+abstract class ReminderDatabase : RoomDatabase() {
+    abstract fun reminderDao(): ReminderDao
 }

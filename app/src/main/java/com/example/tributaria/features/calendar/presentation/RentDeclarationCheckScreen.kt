@@ -82,7 +82,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     // Límites
                     LimitItem(
                         title = "Ingresos brutos",
-                        amount = "\$69.718.600",
+                        amount = "\$65.891.000",
                         subtitle = "1.400 UVT"
                     )
 
@@ -93,7 +93,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
 
                     LimitItem(
                         title = "Patrimonio bruto",
-                        amount = "\$224.095.500",
+                        amount = "\$211.792.500",
                         subtitle = "4.500 UVT al 31/dic/2024"
                     )
 
@@ -104,7 +104,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
 
                     LimitItem(
                         title = "Consumos con tarjeta",
-                        amount = "\$69.718.600",
+                        amount = "\$65.891.000",
                         subtitle = "1.400 UVT"
                     )
 
@@ -114,8 +114,8 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     )
 
                     LimitItem(
-                        title = "Compras totales",
-                        amount = "\$69.718.600",
+                        title = "Consignaciónes bancarias",
+                        amount = "\$65.891.000",
                         subtitle = "1.400 UVT"
                     )
 
@@ -125,8 +125,8 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     )
 
                     LimitItem(
-                        title = "Depósitos bancarios",
-                        amount = "\$69.718.600",
+                        title = "compras y consumos",
+                        amount = "\$65.891.000",
                         subtitle = "1.400 UVT"
                     )
 
@@ -145,7 +145,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "Valor UVT 2025: \$49.799",
+                        text = "Valor UVT 2024: \$47.065",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                         textAlign = TextAlign.Center,
@@ -177,7 +177,7 @@ fun RentDeclarationCheckScreen(navController: NavController) {
                     Spacer(modifier = Modifier.height(8.dp))
 
                     BulletPoint(text = "Personas naturales que superen alguno de los límites")
-                    BulletPoint(text = "Personas jurídicas  se implementó una tarifa del 35% sobre el valor total de su patrimonio.")
+                    BulletPoint(text = "Personas jurídicas se implementó una tarifa del 35% sobre el valor total de su patrimonio.")
                 }
             }
         }

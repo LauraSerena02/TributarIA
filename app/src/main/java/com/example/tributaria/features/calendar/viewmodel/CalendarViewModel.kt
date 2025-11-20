@@ -50,28 +50,12 @@ class CalendarViewModel @Inject constructor(
         loadUserConfig()
     }
 
-    // Funcion de prueba
-    fun triggerTestNotification() {
-        viewModelScope.launch {  // <-- Esto crea el contexto de corrutina necesario
-            try {
-                val userId = _userConfig.value?.second ?: "test_user_123"
-                scheduleReminders.showTestNotificationNow(
-                    userId = userId,
-                    message = "🔴 Notificación de prueba - Faltan 7 días para declarar renta"
-                )
-            } catch (e: Exception) {
-                Log.e("CalendarViewModel", "Error al mostrar notificación", e)
-                _showError.value = true
-            }
-        }
-    }
-
     // Carga la configuración del usuario
     fun loadUserConfig() {
         viewModelScope.launch {
             try {
                 _userConfig.value = reminderRepository.getReminderConfig()
-                loadAllReminders() // Cambiamos a cargar todos los recordatorios
+                loadAllReminders()
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "Error loading user config", e)
                 _showError.value = true
@@ -106,12 +90,11 @@ class CalendarViewModel @Inject constructor(
     private suspend fun isReminderActive(workId: String): Boolean {
         return try {
             val workInfo = workManager.getWorkInfoById(UUID.fromString(workId)).await()
-            when (workInfo?.state) {
+            workInfo?.state in setOf(
                 WorkInfo.State.ENQUEUED,
                 WorkInfo.State.RUNNING,
-                WorkInfo.State.BLOCKED -> true
-                else -> false
-            }
+                WorkInfo.State.BLOCKED
+            )
         } catch (e: Exception) {
             Log.e("CalendarViewModel", "Error checking work status", e)
             false
@@ -143,17 +126,22 @@ class CalendarViewModel @Inject constructor(
         }
     }
 
-    // Cancela un recordatorio
+    // Cancela un recordatorio (versión mejorada)
     fun cancelReminder(reminderId: String, workId: String) {
         viewModelScope.launch {
             try {
-                // Eliminar de la base de datos
+                // 1. Verificar si el trabajo existe antes de intentar cancelarlo
+                val workExists = isReminderActive(workId)
+
+                if (workExists) {
+                    // 2. Cancelar el trabajo en WorkManager
+                    workManager.cancelWorkById(UUID.fromString(workId)).result.await()
+                }
+
+                // 3. Eliminar de la base de datos (siempre)
                 reminderRepository.deleteReminder(reminderId)
 
-                // Cancelar el trabajo en WorkManager
-                workManager.cancelWorkById(UUID.fromString(workId))
-
-                // Recargar la lista
+                // 4. Recargar la lista
                 loadAllReminders()
             } catch (e: Exception) {
                 Log.e("CalendarViewModel", "Error canceling reminder", e)

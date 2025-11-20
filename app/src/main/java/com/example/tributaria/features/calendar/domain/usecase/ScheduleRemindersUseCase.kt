@@ -36,7 +36,7 @@ class ScheduleRemindersUseCase @Inject constructor(
         val delay = targetDate - System.currentTimeMillis()
         if (delay > 0) {
             val workId = UUID.randomUUID().toString()
-            val uniqueTag = "$workTag|$userId|$targetDate"
+            val uniqueTag = "$workTag|$workId" // Tag más simple
 
             val existingReminder = reminderRepository.getReminders(userId).firstOrNull {
                 it.message == message && it.triggerTime == targetDate
@@ -45,20 +45,17 @@ class ScheduleRemindersUseCase @Inject constructor(
             if (existingReminder == null) {
                 val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
                     .setInitialDelay(delay, TimeUnit.MILLISECONDS)
-                    .addTag(uniqueTag)
-                    .addTag("$workTag|$userId")
-                    .setInputData(
-                        workDataOf(
-                            "message" to message,
-                            "userId" to userId,
-                            "workId" to workId
-                        )
-                    )
+                    .addTag(uniqueTag) // Solo un tag único
+                    .setInputData(workDataOf(
+                        "message" to message,
+                        "userId" to userId,
+                        "workId" to workId
+                    ))
                     .build()
 
                 reminderRepository.saveReminder(
                     ReminderEntity(
-                        id = UUID.randomUUID().toString(),
+                        id = workId, // Usar el mismo ID para consistencia
                         userId = userId,
                         message = message,
                         triggerTime = targetDate,
@@ -68,18 +65,21 @@ class ScheduleRemindersUseCase @Inject constructor(
                 )
 
                 workManager.enqueue(workRequest)
-                Log.d("ScheduleDebug", "Programado: $message para ${formatDate(targetDate)}")
             }
         }
     }
+
     suspend fun getScheduledReminders(userId: String): List<ReminderEntity> {
         return reminderRepository.getReminders(userId)
     }
 
     suspend fun cancelReminder(reminderId: String, workId: String) {
         try {
+            // Primero cancelar el trabajo
+            workManager.cancelWorkById(UUID.fromString(workId)).result.await()
+
+            // Luego eliminar de la base de datos
             reminderRepository.deleteReminder(reminderId)
-            workManager.cancelWorkById(UUID.fromString(workId))
         } catch (e: Exception) {
             Log.e("ScheduleReminders", "Error canceling reminder", e)
             throw e
@@ -137,18 +137,26 @@ class ScheduleRemindersUseCase @Inject constructor(
         val deadlineMillis = getDateMillisAt9AM(deadlineDate)
 
         return listOf(
-            createReminderDate(deadlineMillis, 7) to "Faltan 7 días para declarar renta (Fecha límite: $deadlineDate)",
-            createReminderDate(deadlineMillis, 3) to "Faltan 3 días para declarar renta (Fecha límite: $deadlineDate)",
-            createReminderDate(deadlineMillis, 1) to "¡Último día! Mañana vence la declaración de renta (Fecha límite: $deadlineDate)"
+            createReminderDate(
+                deadlineMillis,
+                7
+            ) to "Faltan 7 días para declarar renta (Fecha límite: $deadlineDate)",
+            createReminderDate(
+                deadlineMillis,
+                3
+            ) to "Faltan 3 días para declarar renta (Fecha límite: $deadlineDate)",
+            createReminderDate(
+                deadlineMillis,
+                1
+            ) to "¡Último día! Mañana vence la declaración de renta (Fecha límite: $deadlineDate)"
         ).filter { (triggerTime, _) ->
             triggerTime > System.currentTimeMillis() // Solo futuros
         }.also { reminders ->
             reminders.forEach { (date, msg) ->
-                Log.d("DateDebug", "Recordatorio: $msg - ${formatDate(date)}")
+
             }
         }
     }
-
     private fun createReminderDate(baseMillis: Long, daysBefore: Int): Long {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = baseMillis
@@ -193,7 +201,10 @@ class ScheduleRemindersUseCase @Inject constructor(
                     "Faltan 7 días para declarar y pagar 1a. cuota (Fecha límite: $firstQuotaDateStr-$currentYear)" else null,
             if (firstDeadline > now) createReminderDate(firstDeadline, 3) to
                     "Faltan 3 días para declarar y pagar 1a. cuota (Fecha límite: $firstQuotaDateStr-$currentYear)" else null,
-            if (firstDeadline > now) createReminderDate(firstDeadline, 1) to // CORRECCIÓN: firstDeadline -> firstDeadline
+            if (firstDeadline > now) createReminderDate(
+                firstDeadline,
+                1
+            ) to // CORRECCIÓN: firstDeadline -> firstDeadline
                     "¡Último día! Mañana vence declaración y pago 1a. cuota (Fecha límite: $firstQuotaDateStr-$currentYear)" else null,
 
             // Recordatorios para segunda cuota
@@ -219,25 +230,5 @@ class ScheduleRemindersUseCase @Inject constructor(
         } catch (e: Exception) {
             0L
         }
-    }
-
-    suspend fun showTestNotificationNow(userId: String, message: String) {
-        val workId = UUID.randomUUID().toString()
-        val inputData = workDataOf(
-            "message" to message,
-            "userId" to userId,
-            "workId" to workId
-        )
-
-        // Ejecutar el Worker inmediatamente (sin delay)
-        val workRequest = OneTimeWorkRequestBuilder<NotificationWorker>()
-            .setInputData(inputData)
-            .build()
-
-        workManager.enqueue(workRequest).result.await() // Espera a que se ejecute
-    }
-
-    private fun formatDate(timestamp: Long): String {
-        return SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault()).format(Date(timestamp))
     }
 }

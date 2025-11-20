@@ -75,7 +75,7 @@ fun SuccessScreen(
                 state = rememberSwipeRefreshState(isRefreshing = refreshing.value),
                 onRefresh = {
                     refreshing.value = true
-                    viewModel.getNews("finanzas")
+                    viewModel.getNews("tributaria")
                     refreshing.value = false
                 }
             ) {

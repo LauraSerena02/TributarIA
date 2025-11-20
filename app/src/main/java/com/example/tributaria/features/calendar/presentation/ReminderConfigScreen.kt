@@ -115,7 +115,7 @@ fun ReminderConfigScreen(navController: NavController) {
             OutlinedTextField(
                 value = userIdInput,
                 onValueChange = { userIdInput = it },
-                label = { Text("Últimos dígitos de su ID") },
+                label = { Text("Últimos dos dígitos de su ID si es persona natural y el ultimo digito del ID si es juridica") },
                 modifier = Modifier.fillMaxWidth()
             )
 

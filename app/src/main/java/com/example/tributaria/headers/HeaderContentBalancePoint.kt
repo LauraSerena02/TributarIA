@@ -32,7 +32,7 @@ fun HeaderContentBalancePoint(onMenuClick: () -> Unit) {
             .fillMaxWidth()
             .height(160.dp)// Change the height of the card
             .background(Color(0xFF1E40AF)) // Dark blue background
-            .padding(horizontal = 16.dp, vertical = 20.dp)
+            .padding(horizontal = 16.dp, vertical = 10.dp)
     ) {
         // Menu button (hamburger icon)
         IconButton(
@@ -49,7 +49,7 @@ fun HeaderContentBalancePoint(onMenuClick: () -> Unit) {
             modifier = Modifier.fillMaxSize(),
             verticalAlignment = Alignment.Bottom
         ) {
-            Spacer(modifier = Modifier.width(10.dp))
+            Spacer(modifier = Modifier.width(8.dp))
 
             Column(modifier = Modifier.weight(1f)) {
                 Spacer(modifier = Modifier.weight(1f)) // Pushes text to the bottom

@@ -33,6 +33,7 @@ class CreateAccountViewModel @Inject constructor(
         )
     }
 
+
     fun onPasswordChange(value: String) {
         _state.value = _state.value.copy(password = value)
     }
@@ -103,6 +104,16 @@ class CreateAccountViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun isFormValid(): Boolean {
+        val current = _state.value
+        return current.username.isNotBlank() &&
+                current.isEmailValid &&
+                current.password.isNotBlank() &&
+                !current.passwordMismatch &&
+                current.confirmPassword.isNotBlank() &&
+                current.termsAccepted
     }
 
     fun resetSuccess() {

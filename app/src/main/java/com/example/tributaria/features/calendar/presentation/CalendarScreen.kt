@@ -182,14 +182,6 @@ fun CalendarScreen(navController: NavController) {
                 )
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Botón de prueba
-                Button(
-                    onClick = { viewModel.triggerTestNotification() },
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    Text("Mostrar Notificación")
-                }
-
                 when {
                     scheduledReminders.isEmpty() -> {
                         Text(
