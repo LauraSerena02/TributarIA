@@ -108,7 +108,8 @@ dependencies {
     // Add the dependencies for any other desired Firebase products
     implementation("com.google.firebase:firebase-firestore-ktx")
     implementation("com.google.firebase:firebase-auth-ktx")
-    implementation ("com.google.android.gms:play-services-auth")
+    implementation ("com.google.android.gms:play-services-auth:21.2.0")
+
 
     // Koin para Android
     implementation("io.insert-koin:koin-android:3.5.3")

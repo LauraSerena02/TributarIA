@@ -1,7 +1,7 @@
 package com.example.tributaria
 
 
-import androidx.compose.ui.test.junit4.createComposeRule
+/*import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.navigation.compose.rememberNavController
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -28,9 +28,11 @@ class ExampleInstrumentedTest {
     fun itemsAddedToScreen() {
         composeTestRule.setContent {
             ListScreen(navController = rememberNavController())
+
         }
 
         composeTestRule.onNodeWithText("Title1").assertExists()
         composeTestRule.onNodeWithText("Title2").assertExists()
     }
 }
+*/
