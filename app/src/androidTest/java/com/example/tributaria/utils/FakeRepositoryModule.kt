@@ -1,4 +1,4 @@
-package com.example.tributaria.utils
+/*package com.example.tributaria.utils
 
 import com.example.tributaria.features.news.repository.NewsRepository
 import dagger.Module
@@ -29,4 +29,4 @@ class FakeRepositoryModule {
 
             override fun getNew(title: String): News = news[0]
         }
-}
+}*/
