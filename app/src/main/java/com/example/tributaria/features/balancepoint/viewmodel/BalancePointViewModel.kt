@@ -30,7 +30,7 @@ class BalancePointViewModel(
         return formatter.format(number)
     }
 
-    /** 👉 INPUTS CON FORMATO **/
+    /** INPUTS CON FORMATO **/
     fun onCostoVariableChanged(value: String) {
         _uiState.update { it.copy(costoVariable = formatNumber(value)) }
         validar()

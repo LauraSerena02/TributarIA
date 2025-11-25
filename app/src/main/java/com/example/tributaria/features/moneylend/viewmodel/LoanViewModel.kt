@@ -18,7 +18,7 @@ class LoanViewModel(private val repository: LoanRepository) : ViewModel() {
     private val _uiState = MutableStateFlow(LoanUiState())
     val uiState: StateFlow<LoanUiState> = _uiState.asStateFlow()
 
-    /** 👉 Función de formato para separadores de miles **/
+    /** Función de formato para separadores de miles **/
     private fun formatNumber(input: String): String {
         val digits = input.filter { it.isDigit() }
         if (digits.isEmpty()) return ""
@@ -31,7 +31,7 @@ class LoanViewModel(private val repository: LoanRepository) : ViewModel() {
     }
 
     // ------------------------------
-    // 👉 MANEJO DEL MONTO DEL PRÉSTAMO (con formato)
+    //  MANEJO DEL MONTO DEL PRÉSTAMO (con formato)
     // ------------------------------
     fun onLoanAmountChanged(value: String) {
         _uiState.update { it.copy(loanAmount = formatNumber(value), errorMessage = null) }
@@ -46,7 +46,7 @@ class LoanViewModel(private val repository: LoanRepository) : ViewModel() {
     }
 
     // ------------------------------
-    // 👉 CÁLCULO DEL PRÉSTAMO
+    // CÁLCULO DEL PRÉSTAMO
     // ------------------------------
     fun calculateLoan() {
         try {
