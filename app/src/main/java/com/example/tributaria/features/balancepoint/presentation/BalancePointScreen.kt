@@ -67,7 +67,7 @@ fun BalancePointScreen(navController: NavHostController, viewModel: BalancePoint
                 // Inputs para los valores
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Costo Variable", fontSize = 16.sp)
+                Text("Costo Variable Unitario", fontSize = 16.sp)
                 TextField(
                     value = uiState.costoVariable,
                     onValueChange = { viewModel.onCostoVariableChanged(it) },
@@ -78,7 +78,7 @@ fun BalancePointScreen(navController: NavHostController, viewModel: BalancePoint
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Costo Fijo", fontSize = 16.sp)
+                Text("Costo Fijo Total", fontSize = 16.sp)
                 TextField(
                     value = uiState.costoFijo,
                     onValueChange = { viewModel.onCostoFijoChanged(it) },

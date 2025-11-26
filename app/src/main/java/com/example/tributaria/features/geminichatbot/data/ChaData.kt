@@ -14,7 +14,7 @@ import retrofit2.http.Path
 
 
 object ChatData {
-    private const val GEMINI_API_KEY = "AIzaSyBCIYnOvBw6rnCspP65d9NMsieYlrShyBw" // Tu API key de Gemini
+    private const val GEMINI_API_KEY = "AIzaSyBM2Spv7Z2msj79c_s5ku1fBWxejtVA4NU" // Tu API key de Gemini
     private const val EXCHANGE_API_KEY = "375fe3d616d402e02f923cc8" // API key para tasas de cambio
 
     private val generativeModel = GenerativeModel(
